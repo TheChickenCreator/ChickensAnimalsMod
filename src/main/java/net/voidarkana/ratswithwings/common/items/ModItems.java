@@ -16,6 +16,8 @@ public class ModItems {
 
     public static final RegistryObject<Item> PIGEON_SPAWN_EGG = ITEMS.register("pigeon_spawn_egg",
             ()-> new ForgeSpawnEggItem(ModEntities.PIGEON, 0x4e5869, 0x458876, new Item.Properties()));
+    public static final RegistryObject<Item> COYOTE_SPAWN_EGG = ITEMS.register("coyote_spawn_egg",
+            ()-> new ForgeSpawnEggItem(ModEntities.COYOTE, 0xA3582A, 0x3E333F, new Item.Properties()));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);
