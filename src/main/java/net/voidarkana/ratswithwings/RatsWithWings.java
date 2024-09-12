@@ -32,10 +32,11 @@ public class RatsWithWings
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::clientSetup);
+
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
-
-        modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -59,13 +60,17 @@ public class RatsWithWings
     {
 
     }
+
+    private void clientSetup(final FMLClientSetupEvent event) {
+        EntityRenderers.register(ModEntities.PIGEON.get(), PigeonRenderer::new);
+    }
+
 @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            EntityRenderers.register(ModEntities.PIGEON.get(), PigeonRenderer::new);
         }
     }
 }
