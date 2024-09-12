@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.voidarkana.ratswithwings.RatsWithWings;
 import net.voidarkana.ratswithwings.common.entity.ModEntities;
+import net.voidarkana.ratswithwings.common.entity.custom.CoyoteEntity;
 import net.voidarkana.ratswithwings.common.entity.custom.PigeonEntity;
 
 @Mod.EventBusSubscriber(modid = RatsWithWings.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -13,5 +14,6 @@ public class ModEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event){
         event.put(ModEntities.PIGEON.get(), PigeonEntity.createAttributes().build());
+        event.put(ModEntities.COYOTE.get(), CoyoteEntity.createAttributes().build());
     }
 }

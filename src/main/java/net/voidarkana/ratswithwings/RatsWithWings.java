@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.voidarkana.ratswithwings.client.renderer.CoyoteRenderer;
 import net.voidarkana.ratswithwings.client.renderer.PigeonRenderer;
 import net.voidarkana.ratswithwings.common.entity.ModEntities;
 import net.voidarkana.ratswithwings.common.items.ModItems;
@@ -32,11 +33,10 @@ public class RatsWithWings
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::clientSetup);
-
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
+
+        modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -52,6 +52,7 @@ public class RatsWithWings
     {
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS){
             event.accept(ModItems.PIGEON_SPAWN_EGG);
+            event.accept(ModItems.COYOTE_SPAWN_EGG);
         }
     }
 
@@ -60,17 +61,14 @@ public class RatsWithWings
     {
 
     }
-
-    private void clientSetup(final FMLClientSetupEvent event) {
-        EntityRenderers.register(ModEntities.PIGEON.get(), PigeonRenderer::new);
-    }
-
 @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
+            EntityRenderers.register(ModEntities.PIGEON.get(), PigeonRenderer::new);
+            EntityRenderers.register(ModEntities.COYOTE.get(), CoyoteRenderer::new);
         }
     }
 }
