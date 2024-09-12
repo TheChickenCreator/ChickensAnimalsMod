@@ -42,6 +42,7 @@ import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -234,7 +235,7 @@ public class PigeonEntity extends AbstractFlyingAnimal implements FlyingAnimal, 
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController[]{new AnimationController(this, "Normal", 5, this::Controller)});
+        controllers.add(new AnimationController<>(this, "movementController", 5, this::Controller));
     }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -244,19 +245,14 @@ public class PigeonEntity extends AbstractFlyingAnimal implements FlyingAnimal, 
         return cache;
     }
 
-    protected <E extends GeoAnimatable> PlayState Controller(software.bernie.geckolib.core.animation.AnimationState<E> event) {
-
-        if(this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6 && !this.getPanic() && this.onGround() ) {
-            event.setAndContinue(PIGEON_WALK);
-        } else if (this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6 && this.getPanic() && this.onGround()){
-            event.setAndContinue(PIGEON_PANIC);
-        }else if((this.isFlying() || !this.onGround()) && !this.isInWater()) {
-            event.setAndContinue(PIGEON_FLY);
-        }else {
-            event.setAndContinue(PIGEON_IDLE);
+    protected PlayState Controller(AnimationState<PigeonEntity> state) {
+        PigeonEntity entity = state.getAnimatable();
+        if (entity.onGround()) {
+            if(state.isMoving()) return state.setAndContinue(entity.getPanic() ? PIGEON_PANIC : PIGEON_WALK);
+        } else if (!entity.isInWater()) {
+            return state.setAndContinue(PIGEON_FLY);
         }
-        return PlayState.CONTINUE;
-
+        return state.setAndContinue(PIGEON_IDLE);
     }
 
     public class BirdPanicGoal extends Goal {
@@ -335,9 +331,7 @@ public class PigeonEntity extends AbstractFlyingAnimal implements FlyingAnimal, 
         @javax.annotation.Nullable
         protected BlockPos lookForWater(BlockGetter pLevel, Entity pEntity, int pRange) {
             BlockPos blockpos = pEntity.blockPosition();
-            return !pLevel.getBlockState(blockpos).getCollisionShape(pLevel, blockpos).isEmpty() ? null : BlockPos.findClosestMatch(pEntity.blockPosition(), pRange, 1, (p_196649_) -> {
-                return pLevel.getFluidState(p_196649_).is(FluidTags.WATER);
-            }).orElse((BlockPos)null);
+            return !pLevel.getBlockState(blockpos).getCollisionShape(pLevel, blockpos).isEmpty() ? null : BlockPos.findClosestMatch(pEntity.blockPosition(), pRange, 1, (p_196649_) -> pLevel.getFluidState(p_196649_).is(FluidTags.WATER)).orElse(null);
         }
     }
 
@@ -417,9 +411,7 @@ public class PigeonEntity extends AbstractFlyingAnimal implements FlyingAnimal, 
         @javax.annotation.Nullable
         protected BlockPos lookForWater(BlockGetter pLevel, Entity pEntity, int pRange) {
             BlockPos blockpos = pEntity.blockPosition();
-            return !pLevel.getBlockState(blockpos).getCollisionShape(pLevel, blockpos).isEmpty() ? null : BlockPos.findClosestMatch(pEntity.blockPosition(), pRange, 1, (p_196649_) -> {
-                return pLevel.getFluidState(p_196649_).is(FluidTags.WATER);
-            }).orElse(null);
+            return !pLevel.getBlockState(blockpos).getCollisionShape(pLevel, blockpos).isEmpty() ? null : BlockPos.findClosestMatch(pEntity.blockPosition(), pRange, 1, (p_196649_) -> pLevel.getFluidState(p_196649_).is(FluidTags.WATER)).orElse(null);
         }
     }
 
