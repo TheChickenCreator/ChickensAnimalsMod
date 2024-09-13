@@ -1,4 +1,4 @@
-package net.voidarkana.ratswithwings.common.entity.ai;
+package net.voidarkana.chickensanimalsmod.common.entity.ai;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;

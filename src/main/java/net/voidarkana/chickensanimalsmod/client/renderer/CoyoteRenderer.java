@@ -1,9 +1,8 @@
-package net.voidarkana.ratswithwings.client.renderer;
+package net.voidarkana.chickensanimalsmod.client.renderer;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.voidarkana.ratswithwings.client.model.CoyoteModel;
-import net.voidarkana.ratswithwings.common.entity.custom.CoyoteEntity;
-import software.bernie.geckolib.model.GeoModel;
+import net.voidarkana.chickensanimalsmod.client.model.CoyoteModel;
+import net.voidarkana.chickensanimalsmod.common.entity.custom.CoyoteEntity;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class CoyoteRenderer extends GeoEntityRenderer<CoyoteEntity> {

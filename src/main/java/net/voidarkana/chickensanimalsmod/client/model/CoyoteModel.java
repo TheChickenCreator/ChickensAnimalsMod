@@ -1,10 +1,8 @@
-package net.voidarkana.ratswithwings.client.model;
+package net.voidarkana.chickensanimalsmod.client.model;
 
-import com.eliotlash.mclib.utils.MathHelper;
-import com.eliotlash.mclib.utils.MathUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.voidarkana.ratswithwings.RatsWithWings;
-import net.voidarkana.ratswithwings.common.entity.custom.CoyoteEntity;
+import net.voidarkana.chickensanimalsmod.ChickensAnimalsMod;
+import net.voidarkana.chickensanimalsmod.common.entity.custom.CoyoteEntity;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -16,17 +14,17 @@ import java.util.Optional;
 public class CoyoteModel extends GeoModel<CoyoteEntity> {
     @Override
     public ResourceLocation getModelResource(CoyoteEntity coyoteEntity) {
-        return new ResourceLocation(RatsWithWings.MOD_ID, "geo/entity/coyote.geo.json");
+        return new ResourceLocation(ChickensAnimalsMod.MOD_ID, "geo/entity/coyote.geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(CoyoteEntity coyoteEntity) {
-        return new ResourceLocation(RatsWithWings.MOD_ID, "textures/entity/coyote/coyote" + (coyoteEntity.getVariant() ? "_al.png" : ".png"));
+        return new ResourceLocation(ChickensAnimalsMod.MOD_ID, "textures/entity/coyote/coyote" + (coyoteEntity.getVariant() ? "_al.png" : ".png"));
     }
 
     @Override
     public ResourceLocation getAnimationResource(CoyoteEntity coyoteEntity) {
-        return new ResourceLocation(RatsWithWings.MOD_ID, "animations/entity/coyote.animation.json");
+        return new ResourceLocation(ChickensAnimalsMod.MOD_ID, "animations/entity/coyote.animation.json");
     }
 
     @Override

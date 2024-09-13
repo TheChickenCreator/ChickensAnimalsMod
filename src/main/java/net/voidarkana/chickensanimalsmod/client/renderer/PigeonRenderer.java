@@ -1,12 +1,12 @@
-package net.voidarkana.ratswithwings.client.renderer;
+package net.voidarkana.chickensanimalsmod.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.voidarkana.ratswithwings.RatsWithWings;
-import net.voidarkana.ratswithwings.client.model.PigeonModel;
-import net.voidarkana.ratswithwings.common.entity.custom.PigeonEntity;
+import net.voidarkana.chickensanimalsmod.ChickensAnimalsMod;
+import net.voidarkana.chickensanimalsmod.client.model.PigeonModel;
+import net.voidarkana.chickensanimalsmod.common.entity.custom.PigeonEntity;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
@@ -18,10 +18,10 @@ public class PigeonRenderer extends GeoEntityRenderer<PigeonEntity> {
     @Override
     public @NotNull ResourceLocation getTextureLocation(PigeonEntity pEntity) {
         return switch (pEntity.getVariant()){
-            case 1-> new ResourceLocation(RatsWithWings.MOD_ID, "textures/entity/red.png");
-            case 2-> new ResourceLocation(RatsWithWings.MOD_ID, "textures/entity/white.png");
-            case 3-> new ResourceLocation(RatsWithWings.MOD_ID, "textures/entity/end.png");
-            default-> new ResourceLocation(RatsWithWings.MOD_ID, "textures/entity/main.png");
+            case 1-> new ResourceLocation(ChickensAnimalsMod.MOD_ID, "textures/entity/red.png");
+            case 2-> new ResourceLocation(ChickensAnimalsMod.MOD_ID, "textures/entity/white.png");
+            case 3-> new ResourceLocation(ChickensAnimalsMod.MOD_ID, "textures/entity/end.png");
+            default-> new ResourceLocation(ChickensAnimalsMod.MOD_ID, "textures/entity/main.png");
         };
     }
 

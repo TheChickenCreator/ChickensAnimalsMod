@@ -1,4 +1,4 @@
-package net.voidarkana.ratswithwings.common.items;
+package net.voidarkana.chickensanimalsmod.common.items;
 
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -6,13 +6,13 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import net.voidarkana.ratswithwings.RatsWithWings;
-import net.voidarkana.ratswithwings.common.entity.ModEntities;
+import net.voidarkana.chickensanimalsmod.ChickensAnimalsMod;
+import net.voidarkana.chickensanimalsmod.common.entity.ModEntities;
 
 public class ModItems {
 
     public static final DeferredRegister<Item> ITEMS =
-            DeferredRegister.create(ForgeRegistries.ITEMS, RatsWithWings.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.ITEMS, ChickensAnimalsMod.MOD_ID);
 
     public static final RegistryObject<Item> PIGEON_SPAWN_EGG = ITEMS.register("pigeon_spawn_egg",
             ()-> new ForgeSpawnEggItem(ModEntities.PIGEON, 0x4e5869, 0x458876, new Item.Properties()));

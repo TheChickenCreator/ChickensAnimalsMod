@@ -1,4 +1,4 @@
-package net.voidarkana.ratswithwings.common.entity.ai;
+package net.voidarkana.chickensanimalsmod.common.entity.ai;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -6,7 +6,7 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.NodeEvaluator;
-import net.voidarkana.ratswithwings.common.entity.custom.AbstractFlyingAnimal;
+import net.voidarkana.chickensanimalsmod.common.entity.custom.AbstractFlyingAnimal;
 
 public class GroundAndFlyingMoveControl extends MoveControl {
     private final AbstractFlyingAnimal mob;

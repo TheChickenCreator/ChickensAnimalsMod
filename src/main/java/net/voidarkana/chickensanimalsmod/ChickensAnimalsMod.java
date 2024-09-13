@@ -1,10 +1,9 @@
-package net.voidarkana.ratswithwings;
+package net.voidarkana.chickensanimalsmod;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -14,22 +13,22 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.voidarkana.ratswithwings.client.renderer.CoyoteRenderer;
-import net.voidarkana.ratswithwings.client.renderer.PigeonRenderer;
-import net.voidarkana.ratswithwings.common.entity.ModEntities;
-import net.voidarkana.ratswithwings.common.items.ModItems;
+import net.voidarkana.chickensanimalsmod.client.renderer.CoyoteRenderer;
+import net.voidarkana.chickensanimalsmod.client.renderer.PigeonRenderer;
+import net.voidarkana.chickensanimalsmod.common.entity.ModEntities;
+import net.voidarkana.chickensanimalsmod.common.items.ModItems;
 import org.slf4j.Logger;
 
 
-@Mod(RatsWithWings.MOD_ID)
-public class RatsWithWings
+@Mod(ChickensAnimalsMod.MOD_ID)
+public class ChickensAnimalsMod
 {
 
-    public static final String MOD_ID = "ratswithwings";
+    public static final String MOD_ID = "chickensanimalsmod";
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public RatsWithWings()
+    public ChickensAnimalsMod()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 

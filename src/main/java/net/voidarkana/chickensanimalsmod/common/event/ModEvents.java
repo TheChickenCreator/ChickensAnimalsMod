@@ -1,14 +1,14 @@
-package net.voidarkana.ratswithwings.common.event;
+package net.voidarkana.chickensanimalsmod.common.event;
 
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.voidarkana.ratswithwings.RatsWithWings;
-import net.voidarkana.ratswithwings.common.entity.ModEntities;
-import net.voidarkana.ratswithwings.common.entity.custom.CoyoteEntity;
-import net.voidarkana.ratswithwings.common.entity.custom.PigeonEntity;
+import net.voidarkana.chickensanimalsmod.ChickensAnimalsMod;
+import net.voidarkana.chickensanimalsmod.common.entity.ModEntities;
+import net.voidarkana.chickensanimalsmod.common.entity.custom.CoyoteEntity;
+import net.voidarkana.chickensanimalsmod.common.entity.custom.PigeonEntity;
 
-@Mod.EventBusSubscriber(modid = RatsWithWings.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = ChickensAnimalsMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvents {
 
     @SubscribeEvent

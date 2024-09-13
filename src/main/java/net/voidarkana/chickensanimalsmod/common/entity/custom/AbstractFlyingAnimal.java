@@ -1,37 +1,26 @@
-package net.voidarkana.ratswithwings.common.entity.custom;
+package net.voidarkana.chickensanimalsmod.common.entity.custom;
 
-import com.eliotlash.mclib.math.functions.classic.Abs;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.FlyingMoveControl;
-import net.minecraft.world.entity.ai.control.MoveControl;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.AirAndWaterRandomPos;
 import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.voidarkana.ratswithwings.common.entity.ai.FlyingLookControl;
-import net.voidarkana.ratswithwings.common.entity.ai.GroundAndFlyingMoveControl;
+import net.voidarkana.chickensanimalsmod.common.entity.ai.FlyingLookControl;
+import net.voidarkana.chickensanimalsmod.common.entity.ai.GroundAndFlyingMoveControl;
 
 import javax.annotation.Nullable;
 
@@ -40,7 +29,7 @@ public abstract class AbstractFlyingAnimal extends Animal {
     private static final EntityDataAccessor<Boolean> IS_FLYING = SynchedEntityData.defineId(AbstractFlyingAnimal.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_LANDING = SynchedEntityData.defineId(AbstractFlyingAnimal.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> FLIGHT_TICKS = SynchedEntityData.defineId(AbstractFlyingAnimal.class, EntityDataSerializers.INT);
-    public final int MAX_FLIGHT_TICKS = 120;
+    public final int MAX_FLIGHT_TICKS = 12000;
     public BirdWanderGoal wanderGoal;
     public LandGoal landGoal;
     private boolean isLandNavigator;
@@ -174,7 +163,8 @@ public abstract class AbstractFlyingAnimal extends Animal {
         }
 
         if (getFlightTicks() <= MAX_FLIGHT_TICKS && (isFlying() || isLanding()) && !isVehicle() && !isNoAi()) {
-            setFlightTicks(getFlightTicks() + 2);
+            int prevFlightTicks = getFlightTicks();
+            setFlightTicks(prevFlightTicks + 2);
         }
 
         if (onGround() || getFlightTicks() >= MAX_FLIGHT_TICKS || isUnderWater()) {
@@ -187,7 +177,8 @@ public abstract class AbstractFlyingAnimal extends Animal {
         }
 
         if (getFlightTicks() > 0 && !isFlying() && !isVehicle()) {
-            setFlightTicks(getFlightTicks() - 1);
+            int prevFlightTicks = getFlightTicks();
+            setFlightTicks(prevFlightTicks - 1);
         }
 
         double x = getDeltaMovement().x();

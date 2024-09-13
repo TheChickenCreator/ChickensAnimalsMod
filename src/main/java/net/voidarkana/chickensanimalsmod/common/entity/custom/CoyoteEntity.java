@@ -1,4 +1,4 @@
-package net.voidarkana.ratswithwings.common.entity.custom;
+package net.voidarkana.chickensanimalsmod.common.entity.custom;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.voidarkana.ratswithwings.common.entity.ModEntities;
+import net.voidarkana.chickensanimalsmod.common.entity.ModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
