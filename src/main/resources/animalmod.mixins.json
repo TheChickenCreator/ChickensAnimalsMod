@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "chicken.chickensanimalmod.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "animalmod.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

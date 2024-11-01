@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_cold/overworld",
+  "spawners": {
+    "type": "animalmod:pigeon",
+    "maxCount": 40,
+    "minCount": 17,
+    "weight": 40
+  }
+}
