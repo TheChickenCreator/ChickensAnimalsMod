@@ -1,0 +1,48 @@
+package chicken.chickensanimalmod.server.entity.obj.goal;
+
+import chicken.chickensanimalmod.server.entity.obj.CaracaraEntity;
+import chicken.chickensanimalmod.server.entity.obj.PigeonEntity;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal;
+import net.minecraft.world.entity.ai.util.AirAndWaterRandomPos;
+import net.minecraft.world.entity.ai.util.HoverRandomPos;
+import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
+
+public class CaracaraFlyGoal extends WaterAvoidingRandomFlyingGoal {
+    private final CaracaraEntity pigeonEntity;
+    public CaracaraFlyGoal(CaracaraEntity pMob, double pSpeedModifier) {
+        super(pMob, pSpeedModifier);
+        this.pigeonEntity = pMob;
+        this.interval = 55;
+    }
+
+    @Override
+    public boolean canUse() {
+        return super.canUse() && !this.mob.isBaby() && !this.mob.isPanicking();
+    }
+
+    @Override
+    public boolean canContinueToUse() {
+        return super.canContinueToUse() && !this.mob.isPanicking();
+    }
+
+    @Override
+    public void start() {
+        this.pigeonEntity.setFlying(true);
+        super.start();
+    }
+
+    @Nullable
+    protected Vec3 getPosition() {
+        Vec3 vec3 = this.mob.getViewVector(0.0F);
+        Vec3 vec31 = HoverRandomPos.getPos(this.mob, 16, 16, vec3.x, vec3.z, 1.5707964F, 3, 1);
+        return vec31 != null ? vec31 : AirAndWaterRandomPos.getPos(this.mob, 16, 16, -2, vec3.x, vec3.z, 1.5707963705062866);
+    }
+
+    @Override
+    public void stop() {
+        this.pigeonEntity.setFlying(false);
+        super.stop();
+    }
+}
