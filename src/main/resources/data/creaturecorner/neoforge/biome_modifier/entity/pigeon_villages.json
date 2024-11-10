@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": [
+    "minecraft:desert",
+    "minecraft:plains",
+    "minecraft:savanna",
+    "minecraft:snowy_plains",
+    "minecraft:taiga"
+  ],
+  "spawners": {
+    "type": "creaturecorner:pigeon",
+    "maxCount": 40,
+    "minCount": 17,
+    "weight": 40
+  }
+}
