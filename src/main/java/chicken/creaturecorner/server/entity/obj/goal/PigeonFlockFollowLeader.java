@@ -24,28 +24,30 @@ public class PigeonFlockFollowLeader extends Goal {
 
     @Override
     public boolean canUse() {
-        if (this.mob.hasFollowers()) {
+        if (this.mob.hasFollowers() || this.mob.isBaby()) {
             return false;
         } else if (this.mob.isFollower()) {
-            return true;
+            return this.mob.shouldMoveToLeader() && !this.mob.isTooCloseToLeader();
         } else if (this.nextStartTick > 0) {
             this.nextStartTick--;
             return false;
         } else {
             this.nextStartTick = this.nextStartTick(this.mob);
-            Predicate<PigeonEntity> predicate = p_25258_ -> p_25258_.canBeFollowed() || !p_25258_.isFollower();
-            List<? extends PigeonEntity> list = this.mob
-                    .level()
-                    .getEntitiesOfClass((Class<? extends PigeonEntity>)this.mob.getClass(), this.mob.getBoundingBox().inflate(8.0, 8.0, 8.0), predicate);
+            Predicate<PigeonEntity> predicate = p_25258_ ->{ return
+             p_25258_.canBeFollowed() || !p_25258_.isFollower();
+            };
+            List<? extends PigeonEntity> list = this.mob.level().getEntitiesOfClass(this.mob.getClass(), this.mob.getBoundingBox().inflate(8.0D, 8.0D, 8.0D), predicate);
             PigeonEntity abstractschoolingfish = DataFixUtils.orElse(list.stream().filter(PigeonEntity::canBeFollowed).findAny(), this.mob);
-            abstractschoolingfish.addFollowers(list.stream().filter(p_25255_ -> !p_25255_.isFollower()));
+            abstractschoolingfish.addFollowers(list.stream().filter((fish) -> {
+                return !fish.isFollower();
+            }));
             return this.mob.isFollower();
         }
     }
 
     @Override
     public boolean canContinueToUse() {
-        return this.mob.isFollower() && this.mob.inRangeOfLeader();
+        return this.mob.isFollower() && this.mob.shouldMoveToLeader() && !this.mob.isTooCloseToLeader();
     }
 
     @Override
@@ -60,7 +62,7 @@ public class PigeonFlockFollowLeader extends Goal {
 
     @Override
     public void tick() {
-        if (--this.timeToRecalcPath <= 0) {
+        if (--this.timeToRecalcPath <= 0 && !this.mob.isTooCloseToLeader()) {
             this.timeToRecalcPath = this.adjustedTickDelay(10);
             this.mob.pathToLeader();
         }

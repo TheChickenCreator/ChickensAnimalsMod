@@ -285,7 +285,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
     }
 
     public final boolean unableToMoveToOwner() {
-        return this.isOrderedToSit() || this.isPassenger() || this.mayBeLeashed() || this.getOwner() != null && this.getOwner().isSpectator();
+        return /*this.isOrderedToSit() ||*/ this.isPassenger() || this.mayBeLeashed() || this.getOwner() != null && this.getOwner().isSpectator();
     }
 
     protected boolean canFlyToOwner() {

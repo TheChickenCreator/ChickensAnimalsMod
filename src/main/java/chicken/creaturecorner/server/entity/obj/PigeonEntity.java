@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.*;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -36,15 +37,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -74,19 +79,9 @@ public class PigeonEntity extends GeoEntityBase {
     private static final EntityDataAccessor<Boolean> PANIC = SynchedEntityData.defineId(PigeonEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> FLYING = SynchedEntityData.defineId(PigeonEntity.class, EntityDataSerializers.BOOLEAN);
 
-//    protected final FlyingPathNavigation flyingPathNavigation;
-//    protected final FlyingMoveControl flyingMoveControl;
-//
-//    protected final GroundPathNavigation groundPathNavigation;
-//    protected final MoveControl groundMoveControl;
-
     public PigeonEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
         this.setPathfindingMalus(PathType.WATER, 0);
-//        this.flyingPathNavigation = createNavigation(level);
-//        this.flyingMoveControl = new FlyingMoveControl(this, 32, false);
-//        this.groundPathNavigation = new GroundPathNavigation(this, level);
-//        this.groundMoveControl = new MoveControl(this);
         setFlying(false);
         this.wantsToFly = false;
     }
@@ -96,7 +91,7 @@ public class PigeonEntity extends GeoEntityBase {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(0, new PigeonPanicGoal(this));
-        this.goalSelector.addGoal(1, new PigeonFlockFollowLeader(this));
+        this.goalSelector.addGoal(5, new PigeonFlockFollowLeader(this));
         this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.0F){
             @Override
             public boolean canUse() {
@@ -119,11 +114,9 @@ public class PigeonEntity extends GeoEntityBase {
         if (onLand || this.isBaby()) {
             this.moveControl = new MoveControl(this);
             this.navigation = new GroundPathNavigation(this, level());
-            //this.setFlying(false);
         } else {
             this.moveControl = new FlyingMoveControl(this, 32, false); //new FlightMoveController(this, 0.7F, false);
             this.navigation = new FlyingPathNavigation(this, level());
-            //this.setFlying(true);
         }
     }
 
@@ -338,16 +331,25 @@ public class PigeonEntity extends GeoEntityBase {
     public void tick() {
         super.tick();
 
-        //TODO: wants to fly method so the flying is handled
+        if (this.isFlying() && !this.onGround() && this.isFollower()){
+            if (this.random.nextInt(10)==0){
+                if (!findGroundPosition()){
+                    this.moveDown();
+                }
+            }
+        }
+
 
         if (this.isFollower() && this.leader!=null && this.random.nextInt(50)==0){
 
-            if (this.leader.wantsToFly && this.getFlyTicks()<500){
-                this.setFlyTicks(500);
-            }
+            if (!this.isTooCloseToLeader()){
+                if (this.leader.wantsToFly && this.getFlyTicks()<500){
+                    this.setFlyTicks(500);
+                }
 
-            if (!this.leader.wantsToFly && this.getFlyTicks()>0){
-                this.setFlyTicks(0);
+                if (!this.leader.wantsToFly && this.getFlyTicks()>0){
+                    this.setFlyTicks(0);
+                }
             }
 
         }
@@ -370,34 +372,9 @@ public class PigeonEntity extends GeoEntityBase {
             this.setFlyTicks(prevFlyTicks+1);
         }
 
-        //if (this.getFlyTicks()>=0 && this.getFlyTicks()<=5000){
-
-        //}
-
-//        if(!this.isBaby() && isFlying()) {
-//            FlyingPathNavigation navigator = (FlyingPathNavigation) this.getNavigation();
-//            Path path = navigator.getPath();
-//            if (path != null) {
-//                if (!path.isDone()) {
-//                    BlockPos nextPos = path.getNextNodePos();
-//                    int y = nextPos.getY();
-//                    int difference = y - getBlockY();
-//                    if (y > getBlockY()) {
-//                        this.setDeltaMovement(this.getDeltaMovement().add(0.0, difference > 1 ? 0.0075 : 0.003, 0.0));
-//                    } else if (y < getBlockY()) {
-//                        this.setDeltaMovement(this.getDeltaMovement().add(0.0, difference > -1 ? -0.0125 : -0.006, 0.0));
-//                    }
-//
-//                    if (navigator.isStuck()) {
-//                        navigator.stop();
-//                    }
-//                }
-//            }
-//        } else {
             if(!this.onGround() && !this.isFlying() && this.getDeltaMovement().y<0) {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0.75F, 1));
             }
-//        }
 
         if (this.hasFollowers() && this.level().random.nextInt(200) == 1) {
             List<? extends PigeonEntity> list = this.level().getEntitiesOfClass(this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
@@ -429,14 +406,17 @@ public class PigeonEntity extends GeoEntityBase {
     }
 
     public boolean inRangeOfLeader() {
-        assert this.leader != null;
-        return this.distanceToSqr(this.leader) <= 121.0 && this.distanceToSqr(this.leader) >= 6.0;
+        return this.distanceToSqr(this.leader) <= 75.0;
+    }
+
+    public boolean isTooCloseToLeader() {
+        return this.distanceToSqr(this.leader) >= 3;
     }
 
     public boolean shouldMoveToLeader() {
         if (!inRangeOfLeader()) return false;
         assert this.leader != null;
-        return this.distanceToSqr(this.leader) >= 2;
+        return this.distanceToSqr(this.leader) >= 3;
     }
 
     public void pathToLeader() {
@@ -606,5 +586,27 @@ public class PigeonEntity extends GeoEntityBase {
             super.stop();
             PigeonEntity.this.setFlying(false);
         }
+    }
+
+    private Boolean findGroundPosition() {
+        BlockPos blockpos = null;
+
+        for(int i = 0; i < 10; i++) {
+            blockpos = new BlockPos((int) this.getX(), (int) (this.getY()-i), (int) this.getZ());
+            if (!this.isAir(this.level(), blockpos)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void moveDown(){
+        this.getNavigation().moveTo(this.getX(), this.getY() - 8.0D, this.getZ(), 1.1D);
+    }
+
+    private boolean isAir(LevelReader pLevel, BlockPos pPos) {
+        BlockState blockstate = pLevel.getBlockState(pPos);
+        return (blockstate.is(Blocks.AIR));
     }
 }
