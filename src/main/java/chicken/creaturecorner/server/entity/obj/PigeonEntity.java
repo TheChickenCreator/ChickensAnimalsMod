@@ -17,7 +17,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.*;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,11 +26,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.util.AirAndWaterRandomPos;
 import net.minecraft.world.entity.ai.util.HoverRandomPos;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
+import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -65,7 +66,7 @@ import java.util.stream.Stream;
 
 public class PigeonEntity extends GeoEntityBase {
     @javax.annotation.Nullable
-    private PigeonEntity leader;
+    public PigeonEntity leader;
     private int schoolSize = 1;
     private boolean wantsToFly;
 
@@ -86,29 +87,69 @@ public class PigeonEntity extends GeoEntityBase {
         this.wantsToFly = false;
     }
 
-
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(0, new PigeonPanicGoal(this));
-        this.goalSelector.addGoal(5, new PigeonFlockFollowLeader(this));
-        this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.0F){
-            @Override
-            public boolean canUse() {
-                return !PigeonEntity.this.isFlying() && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return !PigeonEntity.this.isFlying() && super.canContinueToUse();
-            }
-        });
+        this.goalSelector.addGoal(1, new PigeonPanicGoal(this));
+        this.goalSelector.addGoal(3, new PigeonFlockFollowLeader(this));
+        this.goalSelector.addGoal(4, new PigeonWaterAvoidingRandomStrollGoal(this, 1.0F));
 
         this.goalSelector.addGoal(2, new BreedGoal(this, 1, PigeonEntity.class));
         this.goalSelector.addGoal(8, new PigeonFlyGoal());
-
-        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, CoyoteEntity.class, 20F, 1.0, 1.2));
     }
+
+    class PigeonWaterAvoidingRandomStrollGoal extends RandomStrollGoal{
+
+        public static final float PROBABILITY = 0.001F;
+        protected final float probability;
+
+        public PigeonWaterAvoidingRandomStrollGoal(PathfinderMob mob, double speedModifier) {
+            this(mob, speedModifier, 0.001F);
+        }
+
+        public PigeonWaterAvoidingRandomStrollGoal(PathfinderMob mob, double speedModifier, float probability) {
+            super(mob, speedModifier, 120, false);
+            this.probability = probability;
+        }
+
+        @javax.annotation.Nullable
+        protected Vec3 getPosition() {
+            if (this.mob.isInWaterOrBubble()) {
+                Vec3 vec3 = LandRandomPos.getPos(this.mob, 15, 7);
+                return vec3 == null ? super.getPosition() : vec3;
+            } else {
+                return this.mob.getRandom().nextFloat() >= this.probability ? LandRandomPos.getPos(this.mob, 10, 7) : super.getPosition();
+            }
+        }
+
+        public boolean canUse() {
+            return (!PigeonEntity.this.isFlying() || !PigeonEntity.this.wantsToFly) && super.canUse();
+        }
+
+        public boolean canContinueToUse() {
+            return (!PigeonEntity.this.isFlying() || !PigeonEntity.this.wantsToFly) && super.canContinueToUse();
+        }
+
+    }
+
+//    class PigeonHurtByOtherGoal extends HurtByTargetGoal {
+//        PigeonHurtByOtherGoal(PigeonEntity mob) {
+//            super(mob);
+//        }
+//
+//        @Override
+//        public boolean canContinueToUse() {
+//            return PigeonEntity.this.isPanicking() || PigeonEntity.this.forcePanic && super.canContinueToUse();
+//        }
+//
+//        @Override
+//        protected void alertOther(Mob mob, LivingEntity target) {
+//            if (mob instanceof PigeonEntity && this.mob.hasLineOfSight(target)) {
+//                ((PigeonEntity) mob).forcePanic = true;
+//            }
+//        }
+//    }
+
 
     private void switchNavigator(boolean onLand) {
         if (onLand || this.isBaby()) {
@@ -192,8 +233,10 @@ public class PigeonEntity extends GeoEntityBase {
     }
 
     public void startFollowing(PigeonEntity leader) {
-        this.leader = leader;
-        leader.addFollower();
+        if (!this.hasFollowers()){
+            this.leader = leader;
+            leader.addFollower();
+        }
     }
 
     public void stopFollowing() {
@@ -211,7 +254,7 @@ public class PigeonEntity extends GeoEntityBase {
     }
 
     public boolean canBeFollowed() {
-        return this.hasFollowers() && this.schoolSize < this.getMaxSchoolSize() && !this.isBaby();
+        return !this.isFollower() && this.hasFollowers() && this.schoolSize < this.getMaxSchoolSize() && !this.isBaby();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -340,6 +383,8 @@ public class PigeonEntity extends GeoEntityBase {
         }
 
 
+
+
         if (this.isFollower() && this.leader!=null && this.random.nextInt(50)==0){
 
             if (!this.isTooCloseToLeader()){
@@ -377,27 +422,35 @@ public class PigeonEntity extends GeoEntityBase {
             }
 
         if (this.hasFollowers() && this.level().random.nextInt(200) == 1) {
-            List<? extends PigeonEntity> list = this.level().getEntitiesOfClass(this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
+            List<? extends PigeonEntity> list = this.level()
+                    .getEntitiesOfClass((Class<? extends PigeonEntity>)this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
             if (list.size() <= 1) {
                 this.schoolSize = 1;
             }
-            if(list.size() >= this.schoolSize) {
-                for (PigeonEntity entity : list) {
-                    if(entity != this) {
-                        if(entity.leader != this) {
-                            if (entity.hasFollowers()) {
-                                entity.schoolSize = 1;
-                            }
-                            if(entity.leader != null) {
-                                entity.leader.schoolSize -=1;
-                            }
-                            entity.leader = this;
-                            this.schoolSize += 1;
-                        }
-                    }
-                }
-            }
         }
+
+//        if (this.hasFollowers() && this.level().random.nextInt(200) == 1) {
+//            List<? extends PigeonEntity> list = this.level().getEntitiesOfClass(this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
+//            if (list.size() <= 1) {
+//                this.schoolSize = 1;
+//            }
+//            if(list.size() >= this.schoolSize) {
+//                for (PigeonEntity entity : list) {
+//                    if(entity != this) {
+//                        if(entity.leader != this) {
+//                            if (entity.hasFollowers()) {
+//                                entity.schoolSize = 1;
+//                            }
+//                            if(entity.leader != null) {
+//                                entity.leader.schoolSize -=1;
+//                            }
+//                            entity.leader = this;
+//                            this.schoolSize += 1;
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
 
@@ -421,7 +474,6 @@ public class PigeonEntity extends GeoEntityBase {
 
     public void pathToLeader() {
         if (this.isFollower()) {
-            assert this.leader != null;
             this.getNavigation().moveTo(this.leader, 1.0);
         }
 
@@ -430,10 +482,11 @@ public class PigeonEntity extends GeoEntityBase {
         return this.leader != null && this.leader.isAlive();
     }
 
+
     public void addFollowers(Stream<? extends PigeonEntity> followers) {
-        followers.limit(this.getMaxSchoolSize() - this.schoolSize).filter((p_27538_) -> p_27538_ != this).forEach((p_27536_) -> {
-            p_27536_.startFollowing(this);
-        });
+        followers.limit((long)(this.getMaxSchoolSize() - this.schoolSize))
+                .filter(p_27538_ -> p_27538_ != this)
+                .forEach(p_27536_ -> p_27536_.startFollowing(this));
     }
 
     @Override
@@ -453,8 +506,13 @@ public class PigeonEntity extends GeoEntityBase {
         return spawnGroupData;
     }
 
+    @Override
+    public int getMaxSpawnClusterSize() {
+        return this.getMaxSchoolSize();
+    }
+
     public int getMaxSchoolSize() {
-        return 1000;
+        return 10;
     }
 
     @Override
@@ -482,8 +540,11 @@ public class PigeonEntity extends GeoEntityBase {
     public AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
         PigeonEntity entity = AnimalModEntities.PIGEON_TYPE.create(serverLevel);
         if(entity != null) {
+
+            entity.setVariant(this.random.nextInt(3));
+
             if(ageableMob instanceof PigeonEntity entity1) {
-                if(entity1.getVariant() == 3) {
+                if(entity1.getVariant() == 3 || this.getVariant() == 3) {
                     entity.setVariant(3);
                 }
             }
@@ -495,7 +556,7 @@ public class PigeonEntity extends GeoEntityBase {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "moveFlyIdleController", 1, this::moveFlyController));
+        controllers.add(new AnimationController<>(this, "moveFlyIdleController", 2, this::moveFlyController));
     }
 
     private PlayState moveFlyController(AnimationState<PigeonEntity> state) {
@@ -608,5 +669,15 @@ public class PigeonEntity extends GeoEntityBase {
     private boolean isAir(LevelReader pLevel, BlockPos pPos) {
         BlockState blockstate = pLevel.getBlockState(pPos);
         return (blockstate.is(Blocks.AIR));
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!this.level().isClientSide && this.isDeadOrDying() && this.isFollower()){
+            if (this.leader != null){
+                this.leader.removeFollower();
+            }
+        }
+        super.remove(reason);
     }
 }

@@ -47,7 +47,7 @@ public class PigeonPanicGoal extends Goal {
     public void start() {
         this.pigeonEntity.setFlying(false);
         this.pigeonEntity.setPanic(true);
-        this.pigeonEntity.getNavigation().moveTo(this.posX, this.posY, this.posZ, 1.3F);
+        this.pigeonEntity.getNavigation().moveTo(this.posX, this.posY, this.posZ, 1.6F);
     }
 
     @Override

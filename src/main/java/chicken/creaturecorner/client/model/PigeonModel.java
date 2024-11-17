@@ -2,6 +2,7 @@ package chicken.creaturecorner.client.model;
 
 import chicken.creaturecorner.AnimalMod;
 import chicken.creaturecorner.server.entity.obj.PigeonEntity;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -26,7 +27,7 @@ public class PigeonModel extends GeoModel<PigeonEntity> {
     @Override
     public ResourceLocation getTextureResource(PigeonEntity object) {
         if (object.isBaby()){
-            return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_baby.png");
+            return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_baby_"+object.getVariantName()+".png");
         }
         else {
             return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_"+object.getVariantName()+".png");
@@ -55,5 +56,10 @@ public class PigeonModel extends GeoModel<PigeonEntity> {
         EntityModelData entityData = animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
         head.setRotX(-(entityData.headPitch() * ((float) Math.PI / 180F)));
         head.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
+    }
+
+    @Override
+    public @org.jetbrains.annotations.Nullable RenderType getRenderType(PigeonEntity animatable, ResourceLocation texture) {
+        return RenderType.entityCutout(texture);
     }
 }

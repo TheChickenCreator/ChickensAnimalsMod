@@ -54,7 +54,7 @@ public class CoyoteModel extends GeoModel<CoyoteEntity> {
         GeoBone head = this.getAnimationProcessor().getBone("head_rot");
 
         EntityModelData entityData = animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
-        head.setRotX(-(entityData.headPitch() * ((float) Math.PI / 180F)));
+        head.setRotX((entityData.headPitch() * ((float) Math.PI / 180F)));
         head.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
     }
 }

@@ -26,7 +26,7 @@ public class PigeonFlockFollowLeader extends Goal {
     public boolean canUse() {
         if (this.mob.hasFollowers() || this.mob.isBaby()) {
             return false;
-        } else if (this.mob.isFollower()) {
+        } else if (this.mob.isFollower() && this.mob.leader != null) {
             return this.mob.shouldMoveToLeader() && !this.mob.isTooCloseToLeader();
         } else if (this.nextStartTick > 0) {
             this.nextStartTick--;

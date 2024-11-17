@@ -1,14 +1,20 @@
 package chicken.creaturecorner.server.entity.obj.geo;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public abstract class GeoEntityBase extends Animal implements GeoEntity {
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
@@ -19,16 +25,26 @@ public abstract class GeoEntityBase extends Animal implements GeoEntity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(FOOD_LEVEL, maxFood());
         super.defineSynchedData(builder);
+        builder.define(FOOD_LEVEL, maxFood());
+    }
+
+    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putInt("FoodLevel", this.getFoodLevel());
+    }
+
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setFoodLevel(compound.getInt("FoodLevel"));
     }
 
     @Override
     public void tick() {
         if(this.hasHunger()) {
-            if (random.nextFloat() <= 0.07) {
+            if (random.nextFloat() <= 0.07 && this.getFoodLevel()>0) {
                 setFoodLevel(getFoodLevel() - 1);
-                if (getFoodLevel() <= 0) {
+                if (getFoodLevel() <= 15) {
                     this.starve();
                 }
             }
@@ -41,7 +57,7 @@ public abstract class GeoEntityBase extends Animal implements GeoEntity {
     }
 
     protected void starve() {
-        this.hurt(level().damageSources().starve(), 1);
+        //this.hurt(level().damageSources().starve(), 1);
     }
 
     public boolean isHungry() {
