@@ -93,7 +93,22 @@ public class PigeonEntity extends GeoEntityBase {
         this.goalSelector.addGoal(1, new PigeonPanicGoal(this));
         this.goalSelector.addGoal(3, new PigeonFlockFollowLeader(this));
         this.goalSelector.addGoal(4, new PigeonWaterAvoidingRandomStrollGoal(this, 1.0F));
-
+        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Ocelot.class, 6.0F, 1.0, 1.2){
+            @Override
+            public boolean canUse() {
+                return !PigeonEntity.this.isFollower() && super.canUse();
+            }
+        });this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Cat.class, 6.0F, 1.0, 1.2){
+            @Override
+            public boolean canUse() {
+                return !PigeonEntity.this.isFollower() && super.canUse();
+            }
+        });this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, CoyoteEntity.class, 6.0F, 1.0, 1.2){
+            @Override
+            public boolean canUse() {
+                return !PigeonEntity.this.isFollower() && super.canUse();
+            }
+        });
         this.goalSelector.addGoal(2, new BreedGoal(this, 1, PigeonEntity.class));
         this.goalSelector.addGoal(8, new PigeonFlyGoal());
     }

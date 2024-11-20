@@ -52,7 +52,7 @@ public abstract class GeoEntityBase extends Animal implements GeoEntity {
         super.tick();
     }
 
-    private boolean hasHunger() {
+    public boolean hasHunger() {
         return false;
     }
 

@@ -90,6 +90,10 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         this.setInSittingPose(this.orderedToSit);
     }
 
+    public boolean isOrderedToSit() {
+        return this.orderedToSit;
+    }
+
     public boolean canBeLeashed() {
         return true;
     }
@@ -165,6 +169,10 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
             this.entityData.set(DATA_FLAGS_ID, (byte)(b0 & -2));
         }
 
+    }
+
+    public void setOrderedToSit(boolean orderedToSit) {
+        this.orderedToSit = orderedToSit;
     }
 
     @Nullable

@@ -4,6 +4,7 @@ import chicken.creaturecorner.server.entity.AnimalModEntities;
 import chicken.creaturecorner.server.entity.obj.geo.GeoTamableEntity;
 import chicken.creaturecorner.server.entity.obj.geo.goal.*;
 import chicken.creaturecorner.server.entity.obj.goal.CoyoteHurtByTargetGoal;
+import chicken.creaturecorner.server.entity.obj.goal.ModSitWhenOrdererdGoal;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -34,6 +35,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -234,6 +237,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     @Override
     public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
+
         if (!this.level().isClientSide || this.isBaby() && this.isFood(itemstack)) {
             if (this.isTame()) {
                 if (this.isFood(itemstack) && this.getHealth() < this.getMaxHealth()) {
@@ -244,24 +248,25 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
                     this.gameEvent(GameEvent.EAT); // Neo: add EAT game event
                     return InteractionResult.sidedSuccess(this.level().isClientSide());
                 } else {
-                    InteractionResult interactionresult = super.mobInteract(player, hand);
-                    if (!interactionresult.consumesAction() && this.isOwnedBy(player)) {
-//                        this.setOrderedToSit(!this.isOrderedToSit());
-                        this.jumping = false;
-                        this.navigation.stop();
-                        this.setTarget(null);
-                        return InteractionResult.SUCCESS_NO_ITEM_USED;
-                    } else {
-                        return interactionresult;
-                    }
+                        InteractionResult interactionresult = super.mobInteract(player, hand);
+                        if (!interactionresult.consumesAction() && this.isOwnedBy(player)) {
+                            this.setOrderedToSit(!this.isOrderedToSit());
+                            this.jumping = false;
+                            this.navigation.stop();
+                            this.setTarget(null);
+                            return InteractionResult.SUCCESS_NO_ITEM_USED;
+                        } else {
+                            return interactionresult;
+                        }
                 }
             } else {
                 return super.mobInteract(player, hand);
             }
         } else {
-            boolean flag = this.isOwnedBy(player) || this.isTame() && !this.isTame() && !this.isAngry();
+            boolean flag = this.isOwnedBy(player) || this.isTame() || !this.isAngry();
             return flag ? InteractionResult.CONSUME : InteractionResult.PASS;
         }
+
     }
 
     @Override
@@ -269,10 +274,18 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
         this.forFoodGoal = new LookForFoodGoal(this, ItemTags.MEAT);
         this.goalSelector.addGoal(3, forFoodGoal);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new FollowParentGoal(this, 1.1));
+//        this.goalSelector.addGoal(1, new FollowParentGoal(this, 1.1){
+//            @Override
+//            public boolean canUse() {
+//                return super.canUse() && !CoyoteEntity.this.isOrderedToSit();
+//            }
+//
+//            @Override
+//            public boolean canContinueToUse() {
+//                return super.canContinueToUse() && !CoyoteEntity.this.isOrderedToSit();
+//            }
+//        });
         this.goalSelector.addGoal(1, new GeoTamableEntity.TamableAnimalPanicGoal(1.5, DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES));
-        this.goalSelector.addGoal(2, new GeoSitWhenOrderedToGoal(this));
-        //this.goalSelector.addGoal(4, new LeapAtTargetGoal(this, 0.2F));
         this.goalSelector.addGoal(5, new MeleeAttackGoal(this, 2, true));
         this.goalSelector.addGoal(7, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, 1.0));
@@ -283,11 +296,21 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
         this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, PigeonEntity.class, false, (living) -> isHungry()));
         this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, Sheep.class, false, (entity -> entity.isBaby() && isHungry())));
-        //this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, Pig.class, false, (entity -> entity.isBaby() && isHungry())));
-        //this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, Cow.class, false, (entity -> entity.isBaby() && isHungry())));
         this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, Chicken.class, false, (living) -> isHungry()));
         this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, Rabbit.class, false, (living) -> isHungry()));
         this.targetSelector.addGoal(8, new ResetUniversalAngerTargetGoal<>(this, true));
+        this.goalSelector.addGoal(2, new ModSitWhenOrdererdGoal(this));
+
+        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Player.class, 6.0F, 1.0, 1.2){
+            @Override
+            public boolean canUse() {
+                return super.canUse() && !CoyoteEntity.this.isAggressive();
+            }
+            @Override
+            public boolean canContinueToUse() {
+                return super.canContinueToUse() && !CoyoteEntity.this.isAggressive();
+            }
+        });
     }
 
     @Override
@@ -298,6 +321,11 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     @Override
     protected void starve() {
         triggerFoodSearch();
+    }
+
+    @Override
+    public boolean hasHunger() {
+        return !this.isTame();
     }
 
     private void triggerFoodSearch() {
@@ -423,17 +451,23 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
-        CoyoteEntity entity = AnimalModEntities.COYOTE_TYPE.create(serverLevel);
-        CoyoteEntity otherParent = (CoyoteEntity) ageableMob;
+        CoyoteEntity baby = AnimalModEntities.COYOTE_TYPE.create(serverLevel);
 
-        if (!this.getVariant() == otherParent.getVariant()){
-            if(entity != null) entity.setVariant(random.nextBoolean());
-        }else if (this.getVariant() && otherParent.getVariant()){
-            if(entity != null) entity.setVariant(true);
-        }else{
-            if(entity != null) entity.setVariant(random.nextFloat() <= 0.15F);
+        if (baby != null && ageableMob instanceof CoyoteEntity otherParent) {
+
+            if (!this.getVariant() == otherParent.getVariant()){
+                if(baby != null) baby.setVariant(random.nextBoolean());
+            }else if (this.getVariant() && otherParent.getVariant()){
+                if(baby != null) baby.setVariant(true);
+            }else{
+                if(baby != null) baby.setVariant(random.nextFloat() <= 0.15F);
+            }
+
+//            baby.setOwnerUUID(this.getOwnerUUID());
+//            baby.setTame(true, true);
         }
-        return entity;
+
+        return baby;
     }
 
     @Override
