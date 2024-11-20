@@ -556,17 +556,35 @@ public class PigeonEntity extends GeoEntityBase {
         PigeonEntity entity = AnimalModEntities.PIGEON_TYPE.create(serverLevel);
         if(entity != null) {
 
-            entity.setVariant(this.random.nextInt(3));
+            //entity.setVariant(this.random.nextInt(3));
 
-            if(ageableMob instanceof PigeonEntity entity1) {
-                if(entity1.getVariant() == 3 || this.getVariant() == 3) {
-                    entity.setVariant(3);
+            if(ageableMob instanceof PigeonEntity otherParent) {
+                if (otherParent.getVariant() != this.getVariant()){
+                    entity.setVariant(this.random.nextBoolean() ? this.getVariant() : otherParent.getVariant());
+                }else if(otherParent.getVariant() == this.getVariant()) {
+                    if (this.getVariant() == 0){
+                        int random = this.random.nextInt(100);
+                        if (random>20){
+                            entity.setVariant(this.getVariant());
+                        }else {
+                            entity.setVariant(this.random.nextBoolean() ? 1 : 2);
+                        }
+                    }else {
+                        entity.setVariant(this.getVariant());
+                    }
                 }
             }
 
             entity.setBaby(true);
         }
         return entity;
+    }
+
+
+    @Override
+    public boolean canMate(Animal pOtherAnimal) {
+        PigeonEntity mate = (PigeonEntity) pOtherAnimal;
+        return super.canMate(pOtherAnimal) && (this.getVariant() == mate.getVariant() && this.getVariant() == 3);
     }
 
     @Override
