@@ -18,5 +18,7 @@ public class CreativeGroupRegistry {
                     .displayItems((itemDisplayParameters, output) -> {
                         output.accept(ItemRegistry.PIGEON_EGG);
                         output.accept(ItemRegistry.COYOTE_SPAWN_EGG);
+                        output.accept(ItemRegistry.CARACARA_SPAWN_EGG);
+                        output.accept(ItemRegistry.GALLIAN_GROTTO_DISC);
                     }).withLabelColor(0x008000).build());
 }

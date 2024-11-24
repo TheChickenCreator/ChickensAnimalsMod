@@ -144,7 +144,7 @@ public class CoyoteHurtByTargetGoal extends TargetGoal {
                                 mob = iterator.next();
                             } while (this.mob == mob);
                         } while (mob.getTarget() != null);
-                    } while (this.mob instanceof TamableAnimal && ((TamableAnimal) this.mob).getOwner() != ((TamableAnimal) mob).getOwner());
+                    } while (this.mob instanceof GeoTamableEntity && ((GeoTamableEntity) this.mob).getOwner() != ((GeoTamableEntity) mob).getOwner());
                 } while (mob.isAlliedTo(Objects.requireNonNull(this.mob.getLastHurtByMob())));
 
                 if (this.toIgnoreAlert == null) {

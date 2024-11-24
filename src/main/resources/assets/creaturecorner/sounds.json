@@ -1,0 +1,10 @@
+{
+  "gallian_grotto": {
+    "sounds": [
+      {
+        "name": "creaturecorner:gallian_grotto",
+        "stream": true
+      }
+    ]
+  }
+}

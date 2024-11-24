@@ -3,6 +3,7 @@ package chicken.creaturecorner;
 import chicken.creaturecorner.server.entity.AnimalModEntities;
 import chicken.creaturecorner.server.item.ItemRegistry;
 import chicken.creaturecorner.server.item.creativegroup.CreativeGroupRegistry;
+import chicken.creaturecorner.server.sound.CCSounds;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -20,5 +21,6 @@ public class AnimalMod {
         modEventBus.addListener(AnimalModEntities::registerAdditionalSpawns);
         CreativeGroupRegistry.TAB_DEFERRED_REGISTER.register(modEventBus);
         ItemRegistry.ITEMS.register(modEventBus);
+        CCSounds.SOUND_EVENTS.register(modEventBus);
     }
 }

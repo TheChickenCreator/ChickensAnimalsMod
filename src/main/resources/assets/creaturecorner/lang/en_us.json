@@ -1,5 +1,15 @@
 {
   "item.creaturecorner.pigeon_spawn_egg": "Pigeon Spawn Egg",
+  "entity.creaturecorner.pigeon": "Pigeon",
+
   "item.creaturecorner.coyote_spawn_egg": "Coyote Spawn Egg",
+  "entity.creaturecorner.coyote": "Coyote",
+
+  "item.creaturecorner.caracara_spawn_egg": "Coyote Spawn Egg",
+  "entity.creaturecorner.caracara": "Coyote",
+
+  "item.creaturecorner.gallian_grotto_disc": "Music Disc",
+  "item.creaturecorner.gallian_grotto_disc.desc": "ChipsDahCat - Gallian Grotto",
+
   "creaturecorner.title.animal": "Creature Corner"
 }

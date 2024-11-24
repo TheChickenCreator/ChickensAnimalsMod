@@ -1,7 +1,5 @@
 package chicken.creaturecorner.server.entity.obj.geo;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -18,7 +16,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -34,8 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-@Setter
-@Getter
 public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableEntity {
     public static final int TELEPORT_WHEN_DISTANCE_IS_SQ = 144;
     private static final int MIN_HORIZONTAL_DISTANCE_FROM_TARGET_AFTER_TELEPORTING = 2;
@@ -48,7 +43,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID;
     private boolean orderedToSit;
 
-    public GeoTamableEntity(EntityType<? extends Animal> entityType, Level level) {
+    public GeoTamableEntity(EntityType<? extends GeoEntityBase> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -67,7 +62,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         compound.putBoolean("Sitting", this.orderedToSit);
     }
 
-    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         UUID uuid;
         if (compound.hasUUID("Owner")) {
@@ -98,7 +93,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         return true;
     }
 
-    public boolean handleLeashAtDistance(@NotNull Entity leashHolder, float distance) {
+    public boolean handleLeashAtDistance(Entity leashHolder, float distance) {
         if (this.isInSittingPose()) {
             if (distance > 10.0F) {
                 this.dropLeash(true, true);
@@ -158,11 +153,11 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
     }
 
     public boolean isInSittingPose() {
-        return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
+        return ((Byte)this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
     }
 
     public void setInSittingPose(boolean sitting) {
-        byte b0 = this.entityData.get(DATA_FLAGS_ID);
+        byte b0 = (Byte)this.entityData.get(DATA_FLAGS_ID);
         if (sitting) {
             this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 1));
         } else {

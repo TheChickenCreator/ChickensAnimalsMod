@@ -23,6 +23,8 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -53,14 +55,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-//todo: scratching idle behaviour
 public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
     @javax.annotation.Nullable
     private UUID persistentAngerTarget;
-    @Getter @Setter
     private boolean attackedOnce;
-    @Getter @Setter
     private boolean shouldAttackOnce;
     public int prevScratchTime;
 
@@ -74,8 +73,9 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     private static final EntityDataAccessor<Integer> SCRATCHING_TIME = SynchedEntityData.defineId(CoyoteEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> SCRATCHING = SynchedEntityData.defineId(CoyoteEntity.class, EntityDataSerializers.BOOLEAN);
 
-    public CoyoteEntity(EntityType<? extends Animal> pEntityType, Level pLevel) {
+    public CoyoteEntity(EntityType<? extends CoyoteEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
+        this.setTame(false, false);
         this.lookControl = new CoyoteEntity.CoyoteLookControl();
         this.moveControl = new CoyoteEntity.CoyoteMoveControl();
         this.setPathfindingMalus(PathType.DANGER_OTHER, 0.0F);
@@ -123,7 +123,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     }
 
     boolean canMove() {
-        return !this.isInSittingPose() && !this.isScratching();
+        return !this.isOrderedToSit() && !this.isScratching();
     }
 
     @Override
@@ -139,6 +139,10 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     @Override
     public void tick() {
         super.tick();
+
+        if (!this.getNavigation().isDone() && this.isOrderedToSit()){
+            this.getNavigation().stop();
+        }
 
         //handles scratching
         if (!this.isBaby() && !this.isAggressive()){
@@ -216,8 +220,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
             if (this.getNavigation().getPath() != null) {
                 this.getNavigation().stop();
             }
-            pTravelVector = Vec3.ZERO;
-            super.travel(pTravelVector);
+            super.travel(Vec3.ZERO);
         } else {
             super.travel(pTravelVector);
         }
@@ -235,7 +238,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     }
 
     @Override
-    public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
 
         if (!this.level().isClientSide || this.isBaby() && this.isFood(itemstack)) {
@@ -248,22 +251,22 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
                     this.gameEvent(GameEvent.EAT); // Neo: add EAT game event
                     return InteractionResult.sidedSuccess(this.level().isClientSide());
                 } else {
-                        InteractionResult interactionresult = super.mobInteract(player, hand);
-                        if (!interactionresult.consumesAction() && this.isOwnedBy(player)) {
-                            this.setOrderedToSit(!this.isOrderedToSit());
-                            this.jumping = false;
-                            this.navigation.stop();
-                            this.setTarget(null);
-                            return InteractionResult.SUCCESS_NO_ITEM_USED;
-                        } else {
-                            return interactionresult;
-                        }
+                    InteractionResult interactionresult = super.mobInteract(player, hand);
+                    if (!interactionresult.consumesAction() && this.isOwnedBy(player)) {
+                        this.setOrderedToSit(!this.isOrderedToSit());
+                        this.jumping = false;
+                        this.navigation.stop();
+                        this.setTarget(null);
+                        return InteractionResult.SUCCESS_NO_ITEM_USED;
+                    } else {
+                        return interactionresult;
+                    }
                 }
             } else {
                 return super.mobInteract(player, hand);
             }
         } else {
-            boolean flag = this.isOwnedBy(player) || this.isTame() || !this.isAngry();
+            boolean flag = this.isOwnedBy(player) || this.isTame() || this.isFood(itemstack) && !this.isTame() && !this.isAngry();
             return flag ? InteractionResult.CONSUME : InteractionResult.PASS;
         }
 
@@ -274,21 +277,30 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
         this.forFoodGoal = new LookForFoodGoal(this, ItemTags.MEAT);
         this.goalSelector.addGoal(3, forFoodGoal);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-//        this.goalSelector.addGoal(1, new FollowParentGoal(this, 1.1){
-//            @Override
-//            public boolean canUse() {
-//                return super.canUse() && !CoyoteEntity.this.isOrderedToSit();
-//            }
-//
-//            @Override
-//            public boolean canContinueToUse() {
-//                return super.canContinueToUse() && !CoyoteEntity.this.isOrderedToSit();
-//            }
-//        });
         this.goalSelector.addGoal(1, new GeoTamableEntity.TamableAnimalPanicGoal(1.5, DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES));
         this.goalSelector.addGoal(5, new MeleeAttackGoal(this, 2, true));
         this.goalSelector.addGoal(7, new BreedGoal(this, 1.0));
-        this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, 1.0));
+        this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, 1.0){
+            @Override
+            public boolean canUse() {
+                if (CoyoteEntity.this.isInSittingPose() || CoyoteEntity.this.isScratching()){
+                    return false;
+                }
+                else {
+                    return super.canUse();
+                }
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                if (CoyoteEntity.this.isInSittingPose() || CoyoteEntity.this.isScratching()){
+                    return false;
+                }
+                else {
+                    return super.canContinueToUse();
+                }
+            }
+        });
         this.goalSelector.addGoal(9, new TemptGoal(this, 1.1F, (itemstack) -> itemstack.is(Items.CHICKEN), false));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
@@ -312,6 +324,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
             }
         });
     }
+
 
     @Override
     public boolean canPickUpLoot() {
@@ -366,6 +379,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     @Override
     public void aiStep() {
         ItemStack stack = this.getItemBySlot(EquipmentSlot.MAINHAND);
+
         if(stack != null) {
             if(stack.is(ItemTags.MEAT)) {
                 if(isHungry()) {
@@ -498,8 +512,8 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "moveIdleController", 2, this::moveIdleController));
         controllers.add(new AnimationController<>(this, "tameController", 0, this::tameController));
-        controllers.add(new AnimationController<>(this, "moveIdleController", 3, this::moveIdleController));
     }
 
     private PlayState tameController(AnimationState<CoyoteEntity> state) {
@@ -507,8 +521,10 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
             if(state.getAnimatable().isTame() && !state.getAnimatable().isBaby()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("tamed"));
             }
-        } else return PlayState.STOP;
-        return PlayState.CONTINUE;
+        }
+
+        return PlayState.STOP;
+        //return PlayState.CONTINUE;
     }
 
     private PlayState moveIdleController(AnimationState<CoyoteEntity> state) {
@@ -562,7 +578,18 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
         }
     }
 
-//    public class CoyoteMeleeAttackGoal extends MeleeAttackGoal {
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (!this.level().isClientSide){
+            if (this.isTame() && !source.is(DamageTypes.THORNS) && source.getDirectEntity() instanceof Player owner && this.getOwner() == owner) {
+                owner.hurt(this.damageSources().thorns(this), 2.0F);
+                this.playSound(SoundEvents.PHANTOM_BITE);
+            }
+        }
+        return super.hurt(source, amount);
+    }
+
+    //    public class CoyoteMeleeAttackGoal extends MeleeAttackGoal {
 //
 //        public CoyoteMeleeAttackGoal(PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
 //            super(mob, speedModifier, followingTargetEvenIfNotSeen);
