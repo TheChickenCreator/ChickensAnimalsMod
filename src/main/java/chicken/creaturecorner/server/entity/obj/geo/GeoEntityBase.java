@@ -29,12 +29,12 @@ public abstract class GeoEntityBase extends Animal implements GeoEntity {
         builder.define(FOOD_LEVEL, maxFood());
     }
 
-    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("FoodLevel", this.getFoodLevel());
     }
 
-    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setFoodLevel(compound.getInt("FoodLevel"));
     }

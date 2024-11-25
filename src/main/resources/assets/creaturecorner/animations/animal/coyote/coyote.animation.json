@@ -239,6 +239,30 @@
 		"idle": {
 			"loop": true,
 			"bones": {
+				"leg1": {
+					"scale": {
+						"vector": [1, "1-Math.cos((query.anim_time)*360/8)*0.001", 1],
+						"easing": "linear"
+					}
+				},
+				"leg2": {
+					"scale": {
+						"vector": [1, "1-Math.cos((query.anim_time)*360/8)*0.001", 1],
+						"easing": "linear"
+					}
+				},
+				"leg3": {
+					"scale": {
+						"vector": [1, "1-Math.cos((query.anim_time)*360/8)*0.001", 1],
+						"easing": "linear"
+					}
+				},
+				"leg4": {
+					"scale": {
+						"vector": [1, "1-Math.cos((query.anim_time)*360/8)*0.001", 1],
+						"easing": "linear"
+					}
+				},
 				"body": {
 					"rotation": {
 						"vector": ["Math.sin((query.anim_time)*360+25)", 0, 0],

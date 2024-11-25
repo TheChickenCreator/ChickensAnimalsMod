@@ -36,7 +36,7 @@ public class AnimalModEntities {
 
     public static final EntityType<CoyoteEntity> COYOTE_TYPE = registerType("coyote",
             EntityType.Builder.of(CoyoteEntity::new, MobCategory.AMBIENT)
-                    .sized(0.5F, 0.5F)
+                    .sized(0.7F, 0.8F)
     );
 
     @SubscribeEvent
