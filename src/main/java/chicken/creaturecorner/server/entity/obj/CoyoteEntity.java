@@ -516,10 +516,10 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
         return 16;
     }
 
-    @Override
-    public double getBoneResetTime() {
-        return 8;
-    }
+//    @Override
+//    public double getBoneResetTime() {
+//        return 8;
+//    }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {

@@ -2,7 +2,6 @@ package chicken.creaturecorner.client.model;
 
 import chicken.creaturecorner.AnimalMod;
 import chicken.creaturecorner.server.entity.obj.CoyoteEntity;
-import chicken.creaturecorner.server.entity.obj.PigeonEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.animation.AnimationState;
