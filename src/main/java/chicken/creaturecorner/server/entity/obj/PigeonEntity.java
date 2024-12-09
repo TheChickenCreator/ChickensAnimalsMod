@@ -392,7 +392,7 @@ public class PigeonEntity extends GeoEntityBase {
         if (this.isFlying() && !this.onGround() && this.isFollower()){
             if (this.random.nextInt(10)==0){
                 if (!findGroundPosition()){
-                    this.moveDown();
+                    this.setFlyTicks(0);
                 }
             }
         }
@@ -432,9 +432,9 @@ public class PigeonEntity extends GeoEntityBase {
             this.setFlyTicks(prevFlyTicks+1);
         }
 
-            if(!this.onGround() && !this.isFlying() && this.getDeltaMovement().y<0) {
-                this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0.75F, 1));
-            }
+        if(!this.onGround() && !this.isFlying() && this.getDeltaMovement().y<0) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0.75F, 1));
+        }
 
         if (this.hasFollowers() && this.level().random.nextInt(200) == 1) {
             List<? extends PigeonEntity> list = this.level()

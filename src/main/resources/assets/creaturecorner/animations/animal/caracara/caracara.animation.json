@@ -309,7 +309,7 @@
 				},
 				"wing2": {
 					"rotation": {
-						"vector": ["Math.cos(query.anim_time * 360+25)*5", "+2.5-Math.cos(query.anim_time * 360)*2.5", 0],
+						"vector": ["Math.cos(query.anim_time * 360+25)*5", "2.5-Math.cos(query.anim_time * 360)*2.5", 0],
 						"easing": "linear"
 					},
 					"position": {
@@ -560,12 +560,6 @@
 				"2": {
 					"rotation": {
 						"vector": [90, 0, 0],
-						"easing": "linear"
-					}
-				},
-				"falcon": {
-					"rotation": {
-						"vector": [22.5, 0, 0],
 						"easing": "linear"
 					}
 				},

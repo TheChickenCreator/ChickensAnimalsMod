@@ -5,8 +5,13 @@ import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
 import chicken.creaturecorner.server.entity.obj.goal.CaracaraFlyGoal;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
@@ -22,7 +27,9 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.*;
+import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -31,6 +38,7 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.pathfinder.Path;
@@ -41,17 +49,27 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.*;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class CaracaraEntity extends GeoEntityBase {
-    protected final FlyingPathNavigation flyingPathNavigation;
-    protected final FlyingMoveControl flyingMoveControl;
 
-    protected final GroundPathNavigation groundPathNavigation;
-    protected final MoveControl groundMoveControl;
+//    protected final FlyingPathNavigation flyingPathNavigation;
+//    protected final CaracaraEntityMoveControl flyingMoveControl;
 
+    public boolean isSwooping;
+
+    public boolean wantsToFly;
+
+    private static final EntityDataAccessor<Integer> FLY_TICKS = SynchedEntityData.defineId(CaracaraEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> FLYING = SynchedEntityData.defineId(CaracaraEntity.class, EntityDataSerializers.BOOLEAN);
+
+//    protected final GroundPathNavigation groundPathNavigation;
+//    protected final MoveControl groundMoveControl;
+
+    CaracaraEntity.AttackPhase attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
 
     Vec3 moveTargetPoint;
     BlockPos anchorPoint;
@@ -61,14 +79,63 @@ public class CaracaraEntity extends GeoEntityBase {
         this.moveTargetPoint = Vec3.ZERO;
         this.anchorPoint = BlockPos.ZERO;
         this.setPathfindingMalus(PathType.WATER, 0);
-        this.flyingPathNavigation = createNavigation(level);
-        this.flyingMoveControl = new FlyingMoveControl(this, 32, false);
-        this.groundPathNavigation = new GroundPathNavigation(this, level);
-        this.groundMoveControl = new MoveControl(this);
-        this.moveControl = new CaracaraEntity.CaracaraEntityMoveControl(this);
-        this.lookControl = new CaracaraEntity.CaracaraEntityLookControl(this, this);
+//        this.flyingPathNavigation = createNavigation(level);
+//        this.flyingMoveControl = new CaracaraEntityMoveControl(this);
+//        this.groundPathNavigation = new GroundPathNavigation(this, level);
+        //this.moveControl = new MoveControl(this);
+        //this.moveControl = new CaracaraEntity.CaracaraEntityMoveControl(this);
+        this.lookControl = new CaracaraEntity.CaracaraLookControl(this);
 
         setFlying(false);
+        this.wantsToFly = false;
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(FLY_TICKS, 0);
+        builder.define(FLYING, false);
+    }
+
+    @Override
+    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putInt("FlyTicks", getFlyTicks());
+        compound.putBoolean("IsFlying", isFlying());
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setFlyTicks(compound.getInt("FlyTicks"));
+        this.setFlying(compound.getBoolean("IsFlying"));
+    }
+
+    public int getFlyTicks() {
+        return this.entityData.get(FLY_TICKS);
+    }
+
+    public void setFlyTicks(int ticks) {
+        this.entityData.set(FLY_TICKS, ticks);
+    }
+
+    public void setFlying(boolean flight) {
+        this.entityData.set(FLYING, flight);
+        switchNavigator(flight);
+    }
+
+    public boolean isFlying() {
+        return this.entityData.get(FLYING);
+    }
+
+    private void switchNavigator(boolean flying) {
+        if (!flying || this.isBaby()) {
+            this.moveControl = new MoveControl(this);
+            //this.navigation = new GroundPathNavigation(this, level());
+        } else {
+            this.moveControl = new CaracaraEntity.CaracaraEntityMoveControl(this); //new FlightMoveController(this, 0.7F, false);
+            //this.navigation = new FlyingPathNavigation(this, level());
+        }
     }
 
     protected BodyRotationControl createBodyControl() {
@@ -81,16 +148,16 @@ public class CaracaraEntity extends GeoEntityBase {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.FLYING_SPEED, 0.4F).add(Attributes.ATTACK_DAMAGE, 1F).add(Attributes.MOVEMENT_SPEED, 0.2F);
+        return Mob.createMobAttributes().add(Attributes.FLYING_SPEED, 0.4F).add(Attributes.ATTACK_DAMAGE, 4F).add(Attributes.MOVEMENT_SPEED, 0.2F);
     }
 
-    protected @NotNull FlyingPathNavigation createNavigation(@NotNull Level pLevel) {
-        FlyingPathNavigation flyingpathnavigation = new FlyingPathNavigation(this, pLevel);
-        flyingpathnavigation.setCanOpenDoors(false);
-        flyingpathnavigation.setCanFloat(false);
-        flyingpathnavigation.setCanPassDoors(true);
-        return flyingpathnavigation;
-    }
+//    protected @NotNull FlyingPathNavigation createNavigation(@NotNull Level pLevel) {
+//        FlyingPathNavigation flyingpathnavigation = new FlyingPathNavigation(this, pLevel);
+//        flyingpathnavigation.setCanOpenDoors(false);
+//        flyingpathnavigation.setCanFloat(false);
+//        flyingpathnavigation.setCanPassDoors(true);
+//        return flyingpathnavigation;
+//    }
 
     @Override
     protected void checkFallDamage(double pY, boolean pOnGround, @NotNull BlockState pState, @NotNull BlockPos pPos) {}
@@ -108,8 +175,30 @@ public class CaracaraEntity extends GeoEntityBase {
     @Override
     public void tick() {
         super.tick();
-        if(!this.isBaby() && isFlying()) {
-            FlyingPathNavigation navigator = (FlyingPathNavigation) this.getNavigation();
+
+        int prevFlyTicks = this.getFlyTicks();
+
+        if (!this.wantsToFly && this.isFlying()){
+            this.setFlying(false);
+        }
+
+        if (this.getFlyTicks()<=0){
+            this.wantsToFly = false;
+        }else if (this.getFlyTicks()>=500){
+            this.wantsToFly = true;
+        }
+
+        if (this.wantsToFly && this.isFlying() && this.getTarget() == null){
+            this.setFlyTicks(prevFlyTicks-1);
+        }else if (!this.wantsToFly){
+            this.setFlyTicks(prevFlyTicks+1);
+        }
+
+        if(!this.onGround() && !this.isFlying() && this.getDeltaMovement().y<0) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0.75F, 1));
+        }
+
+        if(!this.isBaby() && isFlying() && this.navigation instanceof FlyingPathNavigation navigator) {
             Path path = navigator.getPath();
             if (path != null) {
                 if (!path.isDone()) {
@@ -127,30 +216,18 @@ public class CaracaraEntity extends GeoEntityBase {
                     }
                 }
             }
-        } else {
-            if(!this.onGround()) {
-                this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0.9F, 1));
-            }
         }
     }
 
-    private boolean isFlying() {
-        return this.navigation == flyingPathNavigation;
-    }
-
     @Override
-    public boolean hasChildModel() {
-        return true;
-    }
-
-    @Override
-    public void move(@NotNull MoverType type, @NotNull Vec3 pos) {
+    public void move(MoverType type, Vec3 pos) {
         super.move(type, pos);
     }
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new CaracaraEntitySweepAttackGoal());
+        this.goalSelector.addGoal(1, new CaracaraEntity.CaracaraAttackStrategyGoal());
+        this.goalSelector.addGoal(0, new CaracaraEntitySweepAttackGoal(this));
         this.goalSelector.addGoal(1, new CaracaraEntityCircleAroundAnchorGoal());
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, PigeonEntity.class, false));
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Chicken.class, false));
@@ -158,15 +235,15 @@ public class CaracaraEntity extends GeoEntityBase {
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Sheep.class, false));
 
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.0F));
+        this.goalSelector.addGoal(4, new CaracaraEntity.CaracaraStrollGoal(this, 1.0F));
         this.goalSelector.addGoal(4, new BreedGoal(this, 1, CaracaraEntity.class));
         this.goalSelector.addGoal(12, new CaracaraFlyGoal(this, 1.0F));
     }
 
-    @Override
-    protected float getJumpPower() {
-        return this.getJumpPower(1F);
-    }
+//    @Override
+//    protected float getJumpPower() {
+//        return this.getJumpPower(1F);
+//    }
 
     @Override
     public boolean isFood(ItemStack itemStack) {
@@ -188,26 +265,53 @@ public class CaracaraEntity extends GeoEntityBase {
         controllers.add(new AnimationController<>(this, "moveFlyIdleController", 1, this::moveFlyController));
     }
 
+    public void travel(Vec3 travelVector) {
+        if (this.isFlying() && !this.isBaby()){
+            if (this.isControlledByLocalInstance()) {
+                if (this.isInWater()) {
+                    this.moveRelative(0.02F, travelVector);
+                    this.move(MoverType.SELF, this.getDeltaMovement());
+                    this.setDeltaMovement(this.getDeltaMovement().scale(0.800000011920929));
+                } else if (this.isInLava()) {
+                    this.moveRelative(0.02F, travelVector);
+                    this.move(MoverType.SELF, this.getDeltaMovement());
+                    this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
+                } else {
+                    BlockPos ground = this.getBlockPosBelowThatAffectsMyMovement();
+                    float f = 0.91F;
+                    if (this.onGround()) {
+                        f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+                    }
+
+                    float f1 = 0.16277137F / (f * f * f);
+                    f = 0.91F;
+                    if (this.onGround()) {
+                        f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+                    }
+
+                    this.moveRelative(this.onGround() ? 0.1F * f1 : 0.02F, travelVector);
+                    this.move(MoverType.SELF, this.getDeltaMovement());
+                    this.setDeltaMovement(this.getDeltaMovement().scale((double)f));
+                }
+            }
+
+            this.calculateEntityAnimation(false);
+        }
+        else super.travel(travelVector);
+    }
+
     private PlayState moveFlyController(AnimationState<CaracaraEntity> state) {
         CaracaraEntity entity = state.getAnimatable();
         if (entity.onGround()) {
             if(state.isMoving()) return state.setAndContinue(RawAnimation.begin().thenPlay("walk"));
         } else if (!entity.isInWater() && !entity.onGround()) {
-            return state.setAndContinue(RawAnimation.begin().thenPlay("fly"));
+            if (this.isSwooping){
+                return state.setAndContinue(RawAnimation.begin().thenPlay("dive"));
+            }else{
+                return state.setAndContinue(RawAnimation.begin().thenPlay("fly"));
+            }
         }
         return state.setAndContinue(RawAnimation.begin().thenPlay("idle"));
-    }
-
-    public void setFlying(boolean b) {
-        if(b && !isBaby()) {
-            this.navigation = flyingPathNavigation;
-            this.moveControl = flyingMoveControl;
-            this.getNavigation().stop();
-        } else {
-            this.navigation = groundPathNavigation;
-            this.moveControl = groundMoveControl;
-            this.getNavigation().stop();
-        }
     }
 
     public static boolean spawnRules(EntityType<CaracaraEntity> pigeonEntityEntityType, ServerLevelAccessor serverLevelAccessor, MobSpawnType mobSpawnType, BlockPos pos, RandomSource randomSource) {
@@ -296,20 +400,22 @@ public class CaracaraEntity extends GeoEntityBase {
         }
     }
 
-    class CaracaraEntitySweepAttackGoal extends Goal {
+    class CaracaraEntitySweepAttackGoal extends CaracaraMoveTargetGoal {
         private boolean isScaredOfCat;
         private int catSearchTick;
+        CaracaraEntity caracara;
 
-        CaracaraEntitySweepAttackGoal() {
+        CaracaraEntitySweepAttackGoal(CaracaraEntity pCaracara) {
             super();
+            this.caracara = pCaracara;
         }
 
         public boolean canUse() {
-            return CaracaraEntity.this.getTarget() != null;
+            return caracara.getTarget() != null && caracara.attackPhase == CaracaraEntity.AttackPhase.SWOOP;
         }
 
         public boolean canContinueToUse() {
-            LivingEntity livingentity = CaracaraEntity.this.getTarget();
+            LivingEntity livingentity = caracara.getTarget();
             if (livingentity == null) {
                 return false;
             } else if (!livingentity.isAlive()) {
@@ -324,13 +430,9 @@ public class CaracaraEntity extends GeoEntityBase {
                 if (!this.canUse()) {
                     return false;
                 } else {
-                    if (CaracaraEntity.this.tickCount > this.catSearchTick) {
-                        this.catSearchTick = CaracaraEntity.this.tickCount + 20;
-                        List<Cat> list = CaracaraEntity.this.level().getEntitiesOfClass(Cat.class, CaracaraEntity.this.getBoundingBox().inflate(16.0), EntitySelector.ENTITY_STILL_ALIVE);
-
-                        for (Cat cat : list) {
-                            cat.hiss();
-                        }
+                    if (caracara.tickCount > this.catSearchTick) {
+                        this.catSearchTick = caracara.tickCount + 20;
+                        List<Cat> list = caracara.level().getEntitiesOfClass(Cat.class, caracara.getBoundingBox().inflate(16.0), EntitySelector.ENTITY_STILL_ALIVE);
 
                         this.isScaredOfCat = !list.isEmpty();
                     }
@@ -341,30 +443,110 @@ public class CaracaraEntity extends GeoEntityBase {
         }
 
         public void start() {
-            setFlying(true);
+            caracara.setFlying(true);
+            caracara.isSwooping = true;
         }
 
         public void stop() {
-            setFlying(false);
-            CaracaraEntity.this.setTarget(null);
+
+            //setFlying(false);
+            caracara.setTarget(null);
+            caracara.attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
+            caracara.isSwooping = false;
         }
 
+        @Override
         public void tick() {
-            LivingEntity livingentity = CaracaraEntity.this.getTarget();
+            LivingEntity livingentity = caracara.getTarget();
             if (livingentity != null) {
-                CaracaraEntity.this.moveTargetPoint = new Vec3(livingentity.getX(), livingentity.getY(0.5), livingentity.getZ());
-                if (CaracaraEntity.this.getBoundingBox().inflate(0.20000000298023224).intersects(livingentity.getBoundingBox())) {
-                    CaracaraEntity.this.doHurtTarget(livingentity);
-                    if (!CaracaraEntity.this.isSilent()) {
-                        CaracaraEntity.this.level().levelEvent(1039, CaracaraEntity.this.blockPosition(), 0);
-                    }
+                caracara.moveTargetPoint = new Vec3(livingentity.getX(), livingentity.getY(0.5), livingentity.getZ());
+                if (caracara.getBoundingBox().inflate(0.2F).intersects(livingentity.getBoundingBox())) {
+                    caracara.doHurtTarget(livingentity);
+                    caracara.attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
+
+                } else if (caracara.horizontalCollision || caracara.hurtTime > 0) {
+                    caracara.attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
                 }
             }
-
         }
     }
 
-    class CaracaraEntityCircleAroundAnchorGoal extends Goal {
+    class CaracaraStrollGoal extends WaterAvoidingRandomStrollGoal{
+
+        CaracaraEntity caracara;
+
+        public CaracaraStrollGoal(CaracaraEntity mob, double speedModifier) {
+            super(mob, speedModifier);
+            this.caracara = mob;
+        }
+
+        @Override
+        public boolean canUse() {
+            return !caracara.isFlying() && !caracara.wantsToFly && super.canUse();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return !caracara.isFlying() && !caracara.wantsToFly && super.canContinueToUse();
+        }
+    }
+
+
+    class CaracaraAttackStrategyGoal extends Goal {
+        private int nextSweepTick;
+
+        @Override
+        public boolean canUse() {
+            LivingEntity livingentity = CaracaraEntity.this.getTarget();
+            return livingentity != null && CaracaraEntity.this.canAttack(livingentity, TargetingConditions.DEFAULT);
+        }
+
+        @Override
+        public void start() {
+            this.nextSweepTick = this.adjustedTickDelay(10);
+            CaracaraEntity.this.attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
+            this.setAnchorAboveTarget();
+            CaracaraEntity.this.wantsToFly = true;
+            CaracaraEntity.this.setFlyTicks(500);
+        }
+
+        @Override
+        public void stop() {
+            CaracaraEntity.this.anchorPoint = CaracaraEntity.this.level()
+                    .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, CaracaraEntity.this.anchorPoint)
+                    .above(10 + CaracaraEntity.this.random.nextInt(20));
+            CaracaraEntity.this.wantsToFly = false;
+        }
+
+        @Override
+        public void tick() {
+            if (CaracaraEntity.this.attackPhase == CaracaraEntity.AttackPhase.CIRCLE) {
+                this.nextSweepTick--;
+                if (this.nextSweepTick <= 0) {
+                    CaracaraEntity.this.attackPhase = CaracaraEntity.AttackPhase.SWOOP;
+                    this.setAnchorAboveTarget();
+                    this.nextSweepTick = this.adjustedTickDelay((8 + CaracaraEntity.this.random.nextInt(4)) * 20);
+                    //CaracaraEntity.this.playSound(SoundEvents.PHANTOM_SWOOP, 10.0F, 0.95F + CaracaraEntity.this.random.nextFloat() * 0.1F);
+                }
+            }
+        }
+
+        private void setAnchorAboveTarget() {
+            CaracaraEntity.this.anchorPoint = CaracaraEntity.this.getTarget().blockPosition().above(20 + CaracaraEntity.this.random.nextInt(20));
+            if (CaracaraEntity.this.anchorPoint.getY() < CaracaraEntity.this.level().getSeaLevel()) {
+                CaracaraEntity.this.anchorPoint = new BlockPos(
+                        CaracaraEntity.this.anchorPoint.getX(), CaracaraEntity.this.level().getSeaLevel() + 1, CaracaraEntity.this.anchorPoint.getZ()
+                );
+            }
+        }
+    }
+
+    static enum AttackPhase {
+        CIRCLE,
+        SWOOP;
+    }
+
+    class CaracaraEntityCircleAroundAnchorGoal extends CaracaraMoveTargetGoal {
         private float angle;
         private float distance;
         private float height;
@@ -375,7 +557,8 @@ public class CaracaraEntity extends GeoEntityBase {
         }
 
         public boolean canUse() {
-            return CaracaraEntity.this.getTarget() == null && random.nextFloat() <= 0.15;
+            return (CaracaraEntity.this.wantsToFly && CaracaraEntity.this.getTarget() == null)
+                    || CaracaraEntity.this.attackPhase == CaracaraEntity.AttackPhase.CIRCLE;
         }
 
         public void start() {
@@ -439,11 +622,22 @@ public class CaracaraEntity extends GeoEntityBase {
         }
     }
 
-    class CaracaraEntityLookControl extends LookControl {
-        public CaracaraEntityLookControl(final CaracaraEntity this$0, Mob mob) {
+    abstract class CaracaraMoveTargetGoal extends Goal {
+        public CaracaraMoveTargetGoal() {
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+        }
+
+        protected boolean touchingTarget() {
+            return CaracaraEntity.this.moveTargetPoint.distanceToSqr(CaracaraEntity.this.getX(), CaracaraEntity.this.getY(), CaracaraEntity.this.getZ()) < 4.0;
+        }
+    }
+
+    class CaracaraLookControl extends LookControl {
+        public CaracaraLookControl(Mob mob) {
             super(mob);
         }
 
+        @Override
         public void tick() {
         }
     }

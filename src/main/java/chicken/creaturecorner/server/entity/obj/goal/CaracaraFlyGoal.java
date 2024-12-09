@@ -18,7 +18,7 @@ public class CaracaraFlyGoal extends WaterAvoidingRandomFlyingGoal {
 
     @Override
     public boolean canUse() {
-        return super.canUse() && !this.mob.isBaby() && !this.mob.isPanicking();
+        return super.canUse() && this.pigeonEntity.wantsToFly && !this.mob.isBaby() && !this.mob.isPanicking();
     }
 
     @Override
