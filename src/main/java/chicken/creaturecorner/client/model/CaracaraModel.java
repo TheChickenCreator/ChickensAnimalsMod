@@ -58,7 +58,7 @@ public class CaracaraModel extends GeoModel<CaracaraEntity> {
 
         EntityModelData entityData = animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
 
-        if (object.isFlying()){
+        if (object.isFlying() && !object.isBaby()){
             flyRot.setRotX(entityData.headPitch() * ((float) Math.PI / 180F));
             flyRot.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
         }else {
@@ -68,8 +68,8 @@ public class CaracaraModel extends GeoModel<CaracaraEntity> {
     }
 
 
-    @Override
-    public @org.jetbrains.annotations.Nullable RenderType getRenderType(CaracaraEntity animatable, ResourceLocation texture) {
-        return RenderType.entityCutout(texture);
-    }
+//    @Override
+//    public @org.jetbrains.annotations.Nullable RenderType getRenderType(CaracaraEntity animatable, ResourceLocation texture) {
+//        return RenderType.entityCutout(texture);
+//    }
 }

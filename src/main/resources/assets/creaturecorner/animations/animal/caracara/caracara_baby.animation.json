@@ -131,7 +131,7 @@
 			"bones": {
 				"top": {
 					"rotation": {
-						"vector": ["5-Math.cos(query.anim_time * 360*4)*3", 0, "0+Math.cos(query.anim_time * 360*2)*2.5"],
+						"vector": ["5-Math.cos(query.anim_time * 360*4)*3", 0, "Math.cos(query.anim_time * 360*2)*2.5"],
 						"easing": "linear"
 					}
 				},
