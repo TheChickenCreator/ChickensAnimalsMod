@@ -3,7 +3,6 @@
 	"animations": {
 		"walk": {
 			"loop": true,
-			"animation_length": 1,
 			"bones": {
 				"top": {
 					"rotation": {
@@ -19,7 +18,7 @@
 				},
 				"wing2": {
 					"rotation": {
-						"vector": ["Math.cos(query.anim_time * 360*2+25)*5", "+2.5-Math.cos(query.anim_time * 360*2)*2.5", 0],
+						"vector": ["Math.cos(query.anim_time * 360*2+25)*5", "2.5-Math.cos(query.anim_time * 360*2)*2.5", 0],
 						"easing": "linear"
 					},
 					"position": {
