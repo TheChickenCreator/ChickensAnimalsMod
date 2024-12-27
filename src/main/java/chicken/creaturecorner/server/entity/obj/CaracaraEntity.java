@@ -51,22 +51,23 @@ import software.bernie.geckolib.animation.*;
 
 import java.util.*;
 
-public class CaracaraEntity extends GeoEntityBase {
+//todo: make caracaras not touch the floor while moving and flying, if their navigation is done then don't make them not touch the floor.
 
-    public boolean isSwooping;
+public class CaracaraEntity extends GeoEntityBase {
 
     public boolean wantsToFly;
 
     private static final EntityDataAccessor<Integer> FLY_TICKS = SynchedEntityData.defineId(CaracaraEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FLYING = SynchedEntityData.defineId(CaracaraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DIVING = SynchedEntityData.defineId(CaracaraEntity.class, EntityDataSerializers.BOOLEAN);
 
-    CaracaraEntity.AttackPhase attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
+    public CaracaraEntity.AttackPhase attackPhase = CaracaraEntity.AttackPhase.CIRCLE;
 
     public CaracaraEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
         this.setPathfindingMalus(PathType.WATER, 0);
 
-        this.moveControl = new CaracaraMoveControl(this, 2); //new FlightMoveController(this, 0.7F, false);
+        this.moveControl = new CaracaraMoveControl(this); //new FlightMoveController(this, 0.7F, false);
         this.navigation = new FlyingPathNavigation(this, this.level());
         this.lookControl = new SmoothSwimmingLookControl(this, 2);
         this.jumpControl = new CaracaraJumpControl(this);
@@ -74,13 +75,12 @@ public class CaracaraEntity extends GeoEntityBase {
     }
 
     public class CaracaraMoveControl extends MoveControl {
-        private final int maxTurn;
+        private final float maxTurn = 0.5f;
         CaracaraEntity caracara;
 
-        public CaracaraMoveControl(CaracaraEntity mob, int maxTurn) {
+        public CaracaraMoveControl(CaracaraEntity mob) {
             super(mob);
             this.caracara = mob;
-            this.maxTurn = maxTurn;
         }
 
         public void tick() {
@@ -99,11 +99,15 @@ public class CaracaraEntity extends GeoEntityBase {
                     }
 
                     float f = (float)(Mth.atan2(d2, d0) * 180.0 / 3.1415927410125732) - 90.0F;
-                    this.mob.setYRot(this.rotlerp(this.mob.getYRot(), f, 90.0F));
+                    this.mob.setYRot(this.rotlerp(this.mob.getYRot(), f, 45.0F));
                     float f1;
-                    if (this.mob.onGround()) {
-                        f1 = (float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED));
-                    } else {
+                    if (this.mob.onGround() && this.caracara.isDiving()){
+                        f1 = 0;
+                        this.mob.addDeltaMovement(new Vec3(0, 0.75, 0));
+                    }else if (this.mob.onGround()) {
+                        f1 = (float)(0.1 * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED));
+                        this.mob.addDeltaMovement(new Vec3(0, 0.5, 0));
+                    }else {
                         f1 = (float)(this.speedModifier * this.mob.getAttributeValue(Attributes.FLYING_SPEED));
                     }
 
@@ -111,7 +115,7 @@ public class CaracaraEntity extends GeoEntityBase {
                     double d4 = Math.sqrt(d0 * d0 + d2 * d2);
                     if (Math.abs(d1) > 9.999999747378752E-6 || Math.abs(d4) > 9.999999747378752E-6) {
                         float f2 = (float)(-(Mth.atan2(d1, d4) * 180.0 / 3.1415927410125732));
-                        this.mob.setXRot(this.rotlerp(this.mob.getXRot(), f2, (float)this.maxTurn));
+                        this.mob.setXRot(this.rotlerp(this.mob.getXRot(), f2, this.maxTurn));
                         this.mob.setYya(d1 > 0.0 ? f1 : -f1);
                     }
                 }
@@ -136,7 +140,7 @@ public class CaracaraEntity extends GeoEntityBase {
 
         @Override
         public void jump() {
-            if (mob.canFly() && !this.mob.onGround()){
+            if (mob.isFlying() && !this.mob.onGround()){
                 super.jump();
             }
         }
@@ -146,7 +150,7 @@ public class CaracaraEntity extends GeoEntityBase {
     protected void registerGoals() {
         //this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 2, true));
 
-        this.goalSelector.addGoal(2, new CaracaraAttackGoal(this, 3, 2, true));
+        this.goalSelector.addGoal(2, new CaracaraAttackGoal(this, 2, 3, true));
         this.goalSelector.addGoal(2, new CaracaraStalkPrey(this, 2));
 
         //this.goalSelector.addGoal(2, new AITackle());
@@ -173,6 +177,7 @@ public class CaracaraEntity extends GeoEntityBase {
         super.defineSynchedData(builder);
         builder.define(FLY_TICKS, 0);
         builder.define(FLYING, false);
+        builder.define(DIVING, false);
     }
 
     @Override
@@ -206,6 +211,14 @@ public class CaracaraEntity extends GeoEntityBase {
         return this.entityData.get(FLYING);
     }
 
+    public void setDiving(boolean flight) {
+        this.entityData.set(DIVING, flight);
+    }
+
+    public boolean isDiving() {
+        return this.entityData.get(DIVING);
+    }
+
     private void switchNavigator(boolean flying) {
 
         if (flying && this.canFly() && this.navigation instanceof GroundPathNavigation){
@@ -221,7 +234,7 @@ public class CaracaraEntity extends GeoEntityBase {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.STEP_HEIGHT, 1F).add(Attributes.FLYING_SPEED, 1F).add(Attributes.ATTACK_DAMAGE, 4F).add(Attributes.MOVEMENT_SPEED, 0.2F);
+        return Mob.createMobAttributes().add(Attributes.STEP_HEIGHT, 1F).add(Attributes.FLYING_SPEED, 1.5F).add(Attributes.ATTACK_DAMAGE, 4F).add(Attributes.MOVEMENT_SPEED, 0.1F).add(Attributes.FOLLOW_RANGE, 64);
     }
 
     @Override
@@ -323,19 +336,19 @@ public class CaracaraEntity extends GeoEntityBase {
     }
 
     boolean isSwooping(){
-        return this.attackPhase == AttackPhase.SWOOP && this.isFlying() && this.isAggressive();
+        return this.attackPhase == AttackPhase.SWOOP && this.isFlying() && this.getTarget() != null;
     }
 
     private PlayState moveFlyController(AnimationState<CaracaraEntity> state) {
         CaracaraEntity entity = state.getAnimatable();
 
         if (!entity.isInWater() && !entity.onGround()) {
-            if (this.isSwooping()) {
+            if (entity.isDiving()) {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("dive"));
             } else {
                 return state.setAndContinue(RawAnimation.begin().thenLoop("fly"));
             }
-        }else if (!entity.isFlying() && entity.getDeltaMovement().horizontalDistanceSqr() > 0.00001) {
+        }else if (entity.onGround() && entity.getDeltaMovement().horizontalDistanceSqr() > 0.0001) {
             if (entity.isAggressive()){
                 return state.setAndContinue(RawAnimation.begin().thenLoop("run"));
             }else {
@@ -413,7 +426,7 @@ public class CaracaraEntity extends GeoEntityBase {
                 (!this.isBaby() || (this.isBaby() && (target instanceof PigeonEntity || target instanceof Rabbit || target instanceof Chicken)));
     }
 
-    enum AttackPhase {
+    public enum AttackPhase {
         CIRCLE,
         SWOOP;
     }
@@ -444,7 +457,7 @@ public class CaracaraEntity extends GeoEntityBase {
         }
 
         public boolean canContinueToUse() {
-            return CaracaraEntity.this.canFly() && CaracaraEntity.this.isFlying() && CaracaraEntity.this.navigation.isInProgress();
+            return !CaracaraEntity.this.isBaby() && CaracaraEntity.this.isFlying() && CaracaraEntity.this.navigation.isInProgress();
         }
 
         public void start() {
@@ -466,7 +479,9 @@ public class CaracaraEntity extends GeoEntityBase {
 
         @Override
         public void stop() {
-            CaracaraEntity.this.setFlying(false);
+            if (CaracaraEntity.this.getTarget()==null){
+                CaracaraEntity.this.setFlying(false);
+            }
         }
     }
 
@@ -549,20 +564,26 @@ public class CaracaraEntity extends GeoEntityBase {
         }
 
         public void start() {
-            this.mob.getNavigation().moveTo(this.path, this.mob.isFlying() ? this.flySpeedModifier : this.runSpeedModifier);
+            if (this.mob.isFlying())
+                this.mob.setDiving(true);
+            this.mob.getNavigation().moveTo(this.path, this.mob.isFlying() && !this.mob.onGround() ? this.flySpeedModifier : this.runSpeedModifier);
             this.mob.setAggressive(true);
             this.ticksUntilNextPathRecalculation = 0;
             this.ticksUntilNextAttack = 0;
         }
 
         public void stop() {
+            if (this.mob.isDiving())
+                this.mob.setDiving(false);
             LivingEntity livingentity = this.mob.getTarget();
             if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingentity)) {
                 this.mob.setTarget(null);
             }
-            if (livingentity == null)
+            if (livingentity == null || livingentity.isDeadOrDying()){
                 this.mob.setAggressive(false);
-            this.mob.getNavigation().stop();
+                this.mob.stopInPlace();
+            }
+            //this.mob.getNavigation().stop();
         }
 
         public boolean requiresUpdateEveryTick() {
@@ -600,7 +621,7 @@ public class CaracaraEntity extends GeoEntityBase {
                         this.ticksUntilNextPathRecalculation += 5;
                     }
 
-                    if (!this.mob.getNavigation().moveTo(livingentity, this.mob.isFlying() ? this.flySpeedModifier : this.runSpeedModifier)) {
+                    if (!this.mob.getNavigation().moveTo(livingentity, this.mob.isFlying() && !this.mob.onGround() ? this.flySpeedModifier : this.runSpeedModifier)) {
                         this.ticksUntilNextPathRecalculation += 15;
                     }
 
@@ -664,11 +685,11 @@ public class CaracaraEntity extends GeoEntityBase {
 
         public boolean canUse() {
             this.prey = this.bird.getTarget();
-            return this.prey != null && this.bird.attackPhase == AttackPhase.CIRCLE && this.bird.isFlying();
+            return this.prey != null && this.bird.attackPhase == AttackPhase.CIRCLE && this.bird.canFly();
         }
 
         public boolean canContinueToUse() {
-            return this.bird.isFlying() && this.prey != null && this.bird.distanceToSqr(this.prey.getX(), this.prey.getY()+8, this.prey.getZ()) < 256.0D && this.bird.attackPhase == AttackPhase.CIRCLE;
+            return this.bird.canFly() && this.prey != null && this.bird.distanceToSqr(this.prey.getX(), this.prey.getY()+8, this.prey.getZ()) < 256.0D && this.bird.attackPhase == AttackPhase.CIRCLE;
         }
 
         @Override
@@ -678,12 +699,13 @@ public class CaracaraEntity extends GeoEntityBase {
 
         public void stop() {
             //this.prey = null;
-            this.bird.getNavigation().stop();
+            if (this.prey == null)
+                this.bird.getNavigation().stop();
         }
 
         public void tick() {
-            this.bird.getLookControl().setLookAt(this.prey.getX(), this.prey.getY()+8, this.prey.getZ(), (float)(this.bird.getMaxHeadYRot() + 20), (float)this.bird.getMaxHeadXRot());
-            if (this.bird.distanceToSqr(this.prey.getX(), this.prey.getY()+8, this.prey.getZ()) < 0.1D) {
+            this.bird.getLookControl().setLookAt(this.prey.getX(), this.prey.getY()+8, this.prey.getZ(), (float)(this.bird.getMaxHeadYRot()), (float)this.bird.getMaxHeadXRot());
+            if (this.bird.distanceToSqr(this.prey.getX(), this.prey.getY()+8, this.prey.getZ()) < 1D) {
                 //this.bird.getNavigation().stop();
                 this.bird.attackPhase = AttackPhase.SWOOP;
             } else {

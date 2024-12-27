@@ -58,12 +58,13 @@ public class CaracaraModel extends GeoModel<CaracaraEntity> {
 
         EntityModelData entityData = animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
 
-        if (object.isFlying() && !object.isBaby()){
-            flyRot.setRotX(entityData.headPitch() * ((float) Math.PI / 180F));
-            flyRot.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
+        if (object.isFlying() && !object.isBaby() && !object.onGround()){
+            flyRot.setRotX(-(entityData.headPitch() * ((float) Math.PI / 180F))/4);
+            head.setRotX((entityData.headPitch() * ((float) Math.PI / 180F))*0.25f);
+            head.setRotY((entityData.netHeadYaw() * ((float) Math.PI / 180F))*0.25f);
         }else {
-            head.setRotX(entityData.headPitch() * ((float) Math.PI / 180F));
-            head.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
+            head.setRotX((entityData.headPitch() * ((float) Math.PI / 180F))*0.75f);
+            head.setRotY((entityData.netHeadYaw() * ((float) Math.PI / 180F))*0.75f);
         }
     }
 
