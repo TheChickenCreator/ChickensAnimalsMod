@@ -43,6 +43,9 @@ public class AnimalModEntities {
     @SubscribeEvent
     public static void registerAdditionalSpawns(RegisterSpawnPlacementsEvent e) {
         e.register(PIGEON_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, PigeonEntity::spawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        e.register(CARACARA_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, CaracaraEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        e.register(COYOTE_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, CoyoteEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
     }
 
     @SubscribeEvent

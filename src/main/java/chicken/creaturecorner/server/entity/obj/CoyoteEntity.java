@@ -5,8 +5,10 @@ import chicken.creaturecorner.server.entity.obj.geo.GeoTamableEntity;
 import chicken.creaturecorner.server.entity.obj.geo.goal.*;
 import chicken.creaturecorner.server.entity.obj.goal.CoyoteHurtByTargetGoal;
 import chicken.creaturecorner.server.entity.obj.goal.ModSitWhenOrdererdGoal;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -14,6 +16,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.TimeUtil;
@@ -39,6 +42,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
@@ -402,7 +406,15 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     }
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData) {
-        this.setVariant(this.random.nextBoolean());
+
+        Holder<Biome> holder = level.getBiome(this.blockPosition());
+
+        if (holder.is(BiomeTags.SPAWNS_COLD_VARIANT_FROGS)) {
+            this.setVariant(this.getRandom().nextInt(0, 10) > 8);
+        } else {
+            this.setVariant(this.getRandom().nextInt(0, 100) > 98);
+        }
+
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
