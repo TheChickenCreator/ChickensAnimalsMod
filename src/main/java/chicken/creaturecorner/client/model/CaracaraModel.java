@@ -46,31 +46,24 @@ public class CaracaraModel extends GeoModel<CaracaraEntity> {
         }
     }
 
-    @Override
     public void setCustomAnimations(CaracaraEntity object, long instanceId, @Nullable AnimationState<CaracaraEntity> animationEvent) {
-
         super.setCustomAnimations(object, instanceId, animationEvent);
+        if (animationEvent != null) {
+            GeoBone head = this.getAnimationProcessor().getBone("look");
+            GeoBone flyRot = this.getAnimationProcessor().getBone("fly_rot");
+            EntityModelData entityData = (EntityModelData)animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
+            head.setRotX(entityData.headPitch() * ((float)Math.PI / 180F) * 0.75F);
+            head.setRotY(entityData.netHeadYaw() * ((float)Math.PI / 180F) * 0.75F);
 
-        if (animationEvent == null) return;
+            if (object.isFlying() && !object.isBaby() && !object.onGround()) {
+                flyRot.setRotX(-object.currentPitch);
+                flyRot.setRotZ(object.currentRoll);
+            }else {
+                flyRot.setRotX(0);
+                flyRot.setRotZ(0);
+            }
 
-        GeoBone head = this.getAnimationProcessor().getBone("look");
-        GeoBone flyRot = this.getAnimationProcessor().getBone("fly_rot");
-
-        EntityModelData entityData = animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
-
-        if (object.isFlying() && !object.isBaby() && !object.onGround()){
-            flyRot.setRotX(-(entityData.headPitch() * ((float) Math.PI / 180F))/4);
-            head.setRotX((entityData.headPitch() * ((float) Math.PI / 180F))*0.25f);
-            head.setRotY((entityData.netHeadYaw() * ((float) Math.PI / 180F))*0.25f);
-        }else {
-            head.setRotX((entityData.headPitch() * ((float) Math.PI / 180F))*0.75f);
-            head.setRotY((entityData.netHeadYaw() * ((float) Math.PI / 180F))*0.75f);
         }
     }
 
-
-//    @Override
-//    public @org.jetbrains.annotations.Nullable RenderType getRenderType(CaracaraEntity animatable, ResourceLocation texture) {
-//        return RenderType.entityCutout(texture);
-//    }
 }

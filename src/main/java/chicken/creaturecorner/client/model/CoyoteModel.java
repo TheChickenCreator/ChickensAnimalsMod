@@ -58,8 +58,4 @@ public class CoyoteModel extends GeoModel<CoyoteEntity> {
         head.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
     }
 
-    @Override
-    public @org.jetbrains.annotations.Nullable RenderType getRenderType(CoyoteEntity animatable, ResourceLocation texture) {
-        return RenderType.entityCutout(texture);
-    }
 }

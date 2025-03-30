@@ -2,6 +2,7 @@ package chicken.creaturecorner.client.model;
 
 import chicken.creaturecorner.AnimalMod;
 import chicken.creaturecorner.server.entity.obj.PigeonEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.animation.AnimationState;
@@ -26,10 +27,18 @@ public class PigeonModel extends GeoModel<PigeonEntity> {
 
     @Override
     public ResourceLocation getTextureResource(PigeonEntity object) {
+
+
         if (object.isBaby()){
             return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_baby_"+object.getVariantName()+".png");
         }
         else {
+            String s = ChatFormatting.stripFormatting(object.getName().getString());
+
+            if ("Canolli".equals(s)){
+                return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_canolli.png");
+            }
+
             return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_"+object.getVariantName()+".png");
         }
     }
@@ -58,8 +67,4 @@ public class PigeonModel extends GeoModel<PigeonEntity> {
         head.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
     }
 
-    @Override
-    public @org.jetbrains.annotations.Nullable RenderType getRenderType(PigeonEntity animatable, ResourceLocation texture) {
-        return RenderType.entityCutout(texture);
-    }
 }

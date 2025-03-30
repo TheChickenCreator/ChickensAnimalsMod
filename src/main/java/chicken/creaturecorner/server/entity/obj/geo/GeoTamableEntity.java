@@ -34,28 +34,20 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
     private static final int MIN_HORIZONTAL_DISTANCE_FROM_TARGET_AFTER_TELEPORTING = 2;
     private static final int MAX_HORIZONTAL_DISTANCE_FROM_TARGET_AFTER_TELEPORTING = 3;
     private static final int MAX_VERTICAL_DISTANCE_FROM_TARGET_AFTER_TELEPORTING = 1;
-
-    protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID =
-            SynchedEntityData.defineId(GeoTamableEntity.class, EntityDataSerializers.BYTE);
-
-    protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID = SynchedEntityData.defineId(
-            GeoTamableEntity.class, EntityDataSerializers.OPTIONAL_UUID);
-
+    protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID;
+    protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID;
     public boolean orderedToSit;
-
 
     public GeoTamableEntity(EntityType<? extends GeoTamableEntity> entityType, Level level) {
         super(entityType, level);
     }
 
-    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_FLAGS_ID, (byte)0);
         builder.define(DATA_OWNERUUID_ID, Optional.empty());
     }
 
-    @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         if (this.getOwnerUUID() != null) {
@@ -65,7 +57,6 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         compound.putBoolean("Sitting", this.orderedToSit);
     }
 
-    @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         UUID uuid;
@@ -80,7 +71,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
             try {
                 this.setOwnerUUID(uuid);
                 this.setTame(true, false);
-            } catch (Throwable throwable) {
+            } catch (Throwable var4) {
                 this.setTame(false, true);
             }
         }
@@ -97,12 +88,10 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         this.orderedToSit = orderedToSit;
     }
 
-    @Override
     public boolean canBeLeashed() {
         return true;
     }
 
-    @Override
     public boolean handleLeashAtDistance(Entity leashHolder, float distance) {
         if (this.isInSittingPose()) {
             if (distance > 10.0F) {
@@ -121,15 +110,15 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
             particleoptions = ParticleTypes.SMOKE;
         }
 
-        for (int i = 0; i < 7; i++) {
+        for(int i = 0; i < 7; ++i) {
             double d0 = this.random.nextGaussian() * 0.02;
             double d1 = this.random.nextGaussian() * 0.02;
             double d2 = this.random.nextGaussian() * 0.02;
-            this.level().addParticle(particleoptions, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), d0, d1, d2);
+            this.level().addParticle(particleoptions, this.getRandomX((double)1.0F), this.getRandomY() + (double)0.5F, this.getRandomZ((double)1.0F), d0, d1, d2);
         }
+
     }
 
-    @Override
     public void handleEntityEvent(byte id) {
         if (id == 7) {
             this.spawnTamingParticles(true);
@@ -138,14 +127,15 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         } else {
             super.handleEntityEvent(id);
         }
+
     }
 
     public boolean isTame() {
-        return (this.entityData.get(DATA_FLAGS_ID) & 4) != 0;
+        return ((Byte)this.entityData.get(DATA_FLAGS_ID) & 4) != 0;
     }
 
     public void setTame(boolean tame, boolean applyTamingSideEffects) {
-        byte b0 = this.entityData.get(DATA_FLAGS_ID);
+        byte b0 = (Byte)this.entityData.get(DATA_FLAGS_ID);
         if (tame) {
             this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 4));
         } else {
@@ -155,28 +145,29 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         if (applyTamingSideEffects) {
             this.applyTamingSideEffects();
         }
+
     }
 
     protected void applyTamingSideEffects() {
     }
 
     public boolean isInSittingPose() {
-        return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
+        return ((Byte)this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
     }
 
     public void setInSittingPose(boolean sitting) {
-        byte b0 = this.entityData.get(DATA_FLAGS_ID);
+        byte b0 = (Byte)this.entityData.get(DATA_FLAGS_ID);
         if (sitting) {
             this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 1));
         } else {
             this.entityData.set(DATA_FLAGS_ID, (byte)(b0 & -2));
         }
+
     }
 
     @Nullable
-    @Override
     public UUID getOwnerUUID() {
-        return this.entityData.get(DATA_OWNERUUID_ID).orElse(null);
+        return (UUID)((Optional)this.entityData.get(DATA_OWNERUUID_ID)).orElse((Object)null);
     }
 
     public void setOwnerUUID(@Nullable UUID uuid) {
@@ -189,9 +180,9 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         if (player instanceof ServerPlayer serverplayer) {
             CriteriaTriggers.TAME_ANIMAL.trigger(serverplayer, this);
         }
+
     }
 
-    @Override
     public boolean canAttack(LivingEntity target) {
         return this.isOwnedBy(target) ? false : super.canAttack(target);
     }
@@ -204,7 +195,6 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         return true;
     }
 
-    @Override
     public PlayerTeam getTeam() {
         if (this.isTame()) {
             LivingEntity livingentity = this.getOwner();
@@ -216,7 +206,6 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         return super.getTeam();
     }
 
-    @Override
     public boolean isAlliedTo(Entity entity) {
         if (this.isTame()) {
             LivingEntity livingentity = this.getOwner();
@@ -251,7 +240,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
 
     public boolean shouldTryTeleportToOwner() {
         LivingEntity livingentity = this.getOwner();
-        return livingentity != null && this.distanceToSqr(this.getOwner()) >= 144.0;
+        return livingentity != null && this.distanceToSqr(this.getOwner()) >= (double)144.0F;
     }
 
     private void teleportToAroundBlockPos(BlockPos pos) {
@@ -272,7 +261,7 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
         if (!this.canTeleportTo(new BlockPos(x, y, z))) {
             return false;
         } else {
-            this.moveTo((double)x + 0.5, y, (double)z + 0.5, this.getYRot(), this.getXRot());
+            this.moveTo((double)x + (double)0.5F, (double)y, (double)z + (double)0.5F, this.getYRot(), this.getXRot());
             this.navigation.stop();
             return true;
         }
@@ -299,6 +288,11 @@ public abstract class GeoTamableEntity extends GeoEntityBase implements OwnableE
 
     protected boolean canFlyToOwner() {
         return false;
+    }
+
+    static {
+        DATA_FLAGS_ID = SynchedEntityData.defineId(GeoTamableEntity.class, EntityDataSerializers.BYTE);
+        DATA_OWNERUUID_ID = SynchedEntityData.defineId(GeoTamableEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     }
 
     public class TamableAnimalPanicGoal extends PanicGoal {

@@ -5,6 +5,7 @@ import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
 import chicken.creaturecorner.server.entity.obj.goal.PigeonFlockFollowLeader;
 import chicken.creaturecorner.server.entity.obj.goal.PigeonPanicGoal;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -228,6 +229,7 @@ public class PigeonEntity extends GeoEntityBase {
 
     @Override
     public String getVariantName() {
+
         return switch (getVariant()) {
             case 1 -> "white";
             case 2 -> "red";
