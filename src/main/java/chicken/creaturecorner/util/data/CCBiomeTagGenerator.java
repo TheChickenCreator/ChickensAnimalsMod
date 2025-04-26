@@ -19,12 +19,9 @@ public class CCBiomeTagGenerator extends BiomeTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
-        this.addTags();
-    }
-
-    protected void addTags() {
         tag(CCTags.Biomes.CARACARA_BIOMES).addTags(BiomeTags.SPAWNS_WARM_VARIANT_FROGS);
         tag(CCTags.Biomes.COYOTE_BIOMES).add(Biomes.BIRCH_FOREST).add(Biomes.BADLANDS).add(Biomes.SNOWY_PLAINS);
+        tag(CCTags.Biomes.PIGEON_BIOMES).add(Biomes.END_HIGHLANDS).add(Biomes.END_MIDLANDS).add(Biomes.SMALL_END_ISLANDS).addTags(BiomeTags.IS_MOUNTAIN);
 
     }
 }

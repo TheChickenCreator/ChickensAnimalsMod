@@ -1,10 +1,10 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#creeaturecorner:is_coyote_biome",
+  "biomes": "#creaturecorner:is_coyote_biome",
   "spawners": {
     "type": "creaturecorner:coyote",
     "maxCount": 3,
     "minCount": 1,
-    "weight": 40
+    "weight": 8
   }
 }

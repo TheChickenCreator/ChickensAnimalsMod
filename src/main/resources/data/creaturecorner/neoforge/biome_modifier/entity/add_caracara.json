@@ -1,10 +1,10 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#creeaturecorner:is_caracara_biome",
+  "biomes": "#creaturecorner:is_caracara_biome",
   "spawners": {
     "type": "creaturecorner:caracara",
     "maxCount": 2,
     "minCount": 1,
-    "weight": 40
+    "weight": 8
   }
 }

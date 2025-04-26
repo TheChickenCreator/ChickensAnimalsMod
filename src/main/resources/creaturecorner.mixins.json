@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "creaturecorner.refmap.json",
   "mixins": [
+    "common.CatSpawnerMixin"
   ],
   "client": [
   ],

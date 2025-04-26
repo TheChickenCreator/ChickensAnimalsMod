@@ -14,6 +14,8 @@ public class CCTags {
 
         public static final TagKey<Biome> CARACARA_BIOMES = create("is_caracara_biome");
 
+        public static final TagKey<Biome> PIGEON_BIOMES = create("is_pigeon_biome");
+
         private static TagKey<Biome> create(String pName) {
             return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, pName));
         }

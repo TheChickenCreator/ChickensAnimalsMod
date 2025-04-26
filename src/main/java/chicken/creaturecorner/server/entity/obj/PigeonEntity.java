@@ -1,11 +1,11 @@
 package chicken.creaturecorner.server.entity.obj;
 
+
 import chicken.creaturecorner.server.entity.AnimalModEntities;
 import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
 import chicken.creaturecorner.server.entity.obj.goal.PigeonFlockFollowLeader;
 import chicken.creaturecorner.server.entity.obj.goal.PigeonPanicGoal;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -38,27 +38,28 @@ import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionDefaults;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
+import java.awt.*;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -604,23 +605,29 @@ public class PigeonEntity extends GeoEntityBase {
 
     public static boolean spawnRules(EntityType<PigeonEntity> pigeonEntityEntityType, ServerLevelAccessor serverLevelAccessor, MobSpawnType mobSpawnType, BlockPos pos, RandomSource randomSource) {
         boolean canContinue = serverLevelAccessor.isEmptyBlock(pos);
+
+        boolean isAir = serverLevelAccessor.getBlockState(pos.below()).isAir();
+
+        boolean flag = MobSpawnType.ignoresLightRequirements(mobSpawnType) || isBrightEnoughToSpawn(serverLevelAccessor, pos);
+
         if(canContinue) {
             Optional<ResourceKey<Biome>> biomeKey = serverLevelAccessor.getBiome(pos).unwrapKey();
             if(biomeKey.isPresent()) {
                 ResourceKey<Biome> resourceKey = biomeKey.get();
-                if(resourceKey == Biomes.END_BARRENS || resourceKey == Biomes.END_HIGHLANDS || resourceKey == Biomes.THE_END || resourceKey == Biomes.SMALL_END_ISLANDS) {
+                if(resourceKey == Biomes.END_MIDLANDS || resourceKey == Biomes.END_BARRENS || resourceKey == Biomes.END_HIGHLANDS || resourceKey == Biomes.SMALL_END_ISLANDS) {
                     StructureManager manager = serverLevelAccessor.getLevel().structureManager();
                     if (manager.hasAnyStructureAt(pos)) {
                         Map<Structure, LongSet> structures = manager.getAllStructuresAt(pos);
                         for (Structure structure : structures.keySet()) {
                             if (structure.type() == StructureType.END_CITY) {
-                                return true;
+                                return !isAir;
                             }
                         }
                     }
                     return false;
                 } else if(serverLevelAccessor.getBiomeManager().getBiome(pos).is(BiomeTags.IS_MOUNTAIN)) {
-                    return true;
+                    return (serverLevelAccessor.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && flag);
+
                 } else {
                     return serverLevelAccessor.getLevel().isVillage(pos);
                 }
@@ -664,12 +671,8 @@ public class PigeonEntity extends GeoEntityBase {
         @javax.annotation.Nullable
         private Vec3 findPos() {
             Vec3 vec3;
-//            if (PigeonEntity.this.isHiveValid() && !PigeonEntity.this.closerThan(PigeonEntity.this.hivePos, 22)) {
-//                Vec3 vec31 = Vec3.atCenterOf(PigeonEntity.this.hivePos);
-//                vec3 = vec31.subtract(PigeonEntity.this.position()).normalize();
-//            } else {
-                vec3 = PigeonEntity.this.getViewVector(0.0F);
-            //}
+
+            vec3 = PigeonEntity.this.getViewVector(0.0F);
 
             Vec3 vec32 = HoverRandomPos.getPos(PigeonEntity.this, 8, 7, vec3.x, vec3.z, 1.5707964F, 3, 1);
             return vec32 != null ? vec32 : AirAndWaterRandomPos.getPos(PigeonEntity.this, 8, 4, -2, vec3.x, vec3.z, 1.5707963705062866);
