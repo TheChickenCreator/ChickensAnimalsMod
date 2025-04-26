@@ -35,7 +35,7 @@ public class PigeonModel extends GeoModel<PigeonEntity> {
         else {
             String s = ChatFormatting.stripFormatting(object.getName().getString());
 
-            if ("Canolli".equals(s)){
+            if (s.toLowerCase().equals("cannoli")){
                 return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "textures/entity/pigeon/pigeon_canolli.png");
             }
 

@@ -140,7 +140,7 @@ public class CaracaraEntity extends GeoEntityBase implements NeutralMob {
         });
         this.goalSelector.addGoal(2, new CaracaraStalkPrey(this, (double)1.0F));
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(4, new CaracaraStrollGoal(this, (double)1.0F));
+        this.goalSelector.addGoal(4, new CaracaraStrollGoal(this, (double)0.5F));
         this.goalSelector.addGoal(7, new AIFlyIdle());
         this.goalSelector.addGoal(4, new BreedGoal(this, (double)1.0F, CaracaraEntity.class));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PigeonEntity.class, false));

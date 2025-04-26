@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,10 +44,10 @@ public class AnimalModEntities {
     @SubscribeEvent
     public static void registerAdditionalSpawns(RegisterSpawnPlacementsEvent e) {
         e.register(PIGEON_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, PigeonEntity::spawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        e.register(CARACARA_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, CaracaraEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        e.register(COYOTE_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, CoyoteEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
-
+        e.register(CARACARA_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CaracaraEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        e.register(COYOTE_TYPE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CoyoteEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
+
 
     @SubscribeEvent
     public static void registerEvent(RegisterEvent event) {

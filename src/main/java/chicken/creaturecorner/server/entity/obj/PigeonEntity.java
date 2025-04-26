@@ -503,10 +503,19 @@ public class PigeonEntity extends GeoEntityBase {
         } else {
             this.startFollowing(((PigeonEntity.SchoolSpawnGroupData)spawnGroupData).leader);
         }
+
         if(level().dimensionTypeRegistration().is(BuiltinDimensionTypes.END)) {
             this.setVariant(3);
         } else {
-            this.setVariant(this.random.nextInt(3));
+            this.setVariant(0);
+
+            if (!this.level().isClientSide()){
+                ServerLevel serverLevel = (ServerLevel)this.level();
+                if (serverLevel.isVillage(this.blockPosition())){
+                    this.setVariant(this.random.nextInt(3));
+                }
+            }
+
         }
 
         return spawnGroupData;
