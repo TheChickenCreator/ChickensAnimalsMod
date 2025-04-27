@@ -387,7 +387,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     }
 
     public @org.jetbrains.annotations.Nullable AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
-        CoyoteEntity baby = (CoyoteEntity) AnimalModEntities.COYOTE_TYPE.create(serverLevel);
+        CoyoteEntity baby = (CoyoteEntity) AnimalModEntities.COYOTE_TYPE.get().create(serverLevel);
         if (baby != null && ageableMob instanceof CoyoteEntity otherParent) {
             if (!this.getVariant() == otherParent.getVariant()) {
                 if (baby != null) {

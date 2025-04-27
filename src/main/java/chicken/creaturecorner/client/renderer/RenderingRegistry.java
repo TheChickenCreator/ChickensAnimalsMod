@@ -23,10 +23,10 @@ public class RenderingRegistry {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event)
     {
-        EntityRenderers.register(AnimalModEntities.PIGEON_TYPE, PigeonRenderer::new);
-        EntityRenderers.register(AnimalModEntities.COYOTE_TYPE, CoyoteRenderer::new);
-        EntityRenderers.register(AnimalModEntities.CARACARA_TYPE, CaracaraRenderer::new);
-        EntityRenderers.register(AnimalModEntities.ENDOVE_TYPE, EndoveRenderer::new);
+        EntityRenderers.register(AnimalModEntities.PIGEON_TYPE.get(), PigeonRenderer::new);
+        EntityRenderers.register(AnimalModEntities.COYOTE_TYPE.get(), CoyoteRenderer::new);
+        EntityRenderers.register(AnimalModEntities.CARACARA_TYPE.get(), CaracaraRenderer::new);
+        EntityRenderers.register(AnimalModEntities.ENDOVE_TYPE.get(), EndoveRenderer::new);
 
     }
 }

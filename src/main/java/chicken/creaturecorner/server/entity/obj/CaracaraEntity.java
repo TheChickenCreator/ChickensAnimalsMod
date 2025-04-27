@@ -346,7 +346,7 @@ public class CaracaraEntity extends GeoEntityBase implements NeutralMob {
     }
 
     public @org.jetbrains.annotations.Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
-        CaracaraEntity entity = (CaracaraEntity)AnimalModEntities.CARACARA_TYPE.create(serverLevel);
+        CaracaraEntity entity = (CaracaraEntity)AnimalModEntities.CARACARA_TYPE.get().create(serverLevel);
         if (entity != null) {
             entity.setBaby(true);
         }

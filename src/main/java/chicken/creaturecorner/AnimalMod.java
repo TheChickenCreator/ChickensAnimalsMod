@@ -16,9 +16,10 @@ public class AnimalMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public AnimalMod(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.addListener(AnimalModEntities::registerEvent);
-        modEventBus.addListener(AnimalModEntities::registerAttributes);
-        modEventBus.addListener(AnimalModEntities::registerAdditionalSpawns);
+//        modEventBus.addListener(AnimalModEntities::registerEvent);
+        AnimalModEntities.register(modEventBus);
+//        modEventBus.addListener(AnimalModEntities::registerAttributes);
+//        modEventBus.addListener(AnimalModEntities::registerAdditionalSpawns);
         CreativeGroupRegistry.TAB_DEFERRED_REGISTER.register(modEventBus);
         ItemRegistry.ITEMS.register(modEventBus);
         CCSounds.SOUND_EVENTS.register(modEventBus);

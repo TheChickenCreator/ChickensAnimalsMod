@@ -17,16 +17,16 @@ public class ItemRegistry {
 
 
     public static final DeferredItem<Item> PIGEON_EGG = ITEMS.register("pigeon_spawn_egg", () ->
-            new DeferredSpawnEggItem(() -> AnimalModEntities.PIGEON_TYPE, 0x434A5E, 0x448675, new Item.Properties()));
+            new DeferredSpawnEggItem(() -> AnimalModEntities.PIGEON_TYPE.get(), 0x434A5E, 0x448675, new Item.Properties()));
 
     public static final DeferredItem<Item> ENDOVE_SPAWN_EGG = ITEMS.register("endove_spawn_egg", () ->
-            new DeferredSpawnEggItem(() -> AnimalModEntities.ENDOVE_TYPE, 0x54365c, 0xb863a7, new Item.Properties()));
+            new DeferredSpawnEggItem(() -> AnimalModEntities.ENDOVE_TYPE.get(), 0x54365c, 0xb863a7, new Item.Properties()));
 
 
     public static final DeferredItem<Item> COYOTE_SPAWN_EGG = ITEMS.register("coyote_spawn_egg",
-            ()-> new DeferredSpawnEggItem(() -> AnimalModEntities.COYOTE_TYPE, 0xA3582A, 0x3E333F, new Item.Properties()));
+            ()-> new DeferredSpawnEggItem(() -> AnimalModEntities.COYOTE_TYPE.get(), 0xA3582A, 0x3E333F, new Item.Properties()));
 
     public static final DeferredItem<Item> CARACARA_SPAWN_EGG = ITEMS.register("caracara_spawn_egg",
-            ()-> new DeferredSpawnEggItem(() -> AnimalModEntities.CARACARA_TYPE, 0x3c2726, 0xead8be, new Item.Properties()));
+            ()-> new DeferredSpawnEggItem(() -> AnimalModEntities.CARACARA_TYPE.get(), 0x3c2726, 0xead8be, new Item.Properties()));
 
 }

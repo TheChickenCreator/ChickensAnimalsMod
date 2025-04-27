@@ -22,7 +22,7 @@ public class CatSpawnerMixin implements CustomSpawner {
 
     @Inject(method = "spawnCat", at = @At("HEAD"), cancellable = true)
     private void spawnCatMethod(BlockPos pos, ServerLevel serverLevel, CallbackInfoReturnable<Integer> cir) {
-        PigeonEntity pigeon = AnimalModEntities.PIGEON_TYPE.create(serverLevel);
+        PigeonEntity pigeon = AnimalModEntities.PIGEON_TYPE.get().create(serverLevel);
         if (pigeon != null) {
             pigeon.moveTo(pos, 0.0F, 0.0F);
             pigeon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);

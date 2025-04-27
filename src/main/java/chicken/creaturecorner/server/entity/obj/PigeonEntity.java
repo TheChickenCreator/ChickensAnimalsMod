@@ -419,7 +419,7 @@ public class PigeonEntity extends GeoEntityBase {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
-        PigeonEntity entity = AnimalModEntities.PIGEON_TYPE.create(serverLevel);
+        PigeonEntity entity = AnimalModEntities.PIGEON_TYPE.get().create(serverLevel);
         if(entity != null) {
 
             //entity.setVariant(this.random.nextInt(3));
