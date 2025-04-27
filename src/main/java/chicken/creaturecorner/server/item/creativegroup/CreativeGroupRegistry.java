@@ -17,6 +17,7 @@ public class CreativeGroupRegistry {
                     .icon(ItemRegistry.PIGEON_EGG::toStack)
                     .displayItems((itemDisplayParameters, output) -> {
                         output.accept(ItemRegistry.PIGEON_EGG);
+                        output.accept(ItemRegistry.ENDOVE_SPAWN_EGG);
                         output.accept(ItemRegistry.COYOTE_SPAWN_EGG);
                         output.accept(ItemRegistry.CARACARA_SPAWN_EGG);
                         output.accept(ItemRegistry.GALLIAN_GROTTO_DISC);

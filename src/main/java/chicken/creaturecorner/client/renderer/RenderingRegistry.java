@@ -3,6 +3,7 @@ package chicken.creaturecorner.client.renderer;
 import chicken.creaturecorner.AnimalMod;
 import chicken.creaturecorner.client.renderer.obj.CaracaraRenderer;
 import chicken.creaturecorner.client.renderer.obj.CoyoteRenderer;
+import chicken.creaturecorner.client.renderer.obj.EndoveRenderer;
 import chicken.creaturecorner.client.renderer.obj.PigeonRenderer;
 import chicken.creaturecorner.server.entity.AnimalModEntities;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -25,6 +26,7 @@ public class RenderingRegistry {
         EntityRenderers.register(AnimalModEntities.PIGEON_TYPE, PigeonRenderer::new);
         EntityRenderers.register(AnimalModEntities.COYOTE_TYPE, CoyoteRenderer::new);
         EntityRenderers.register(AnimalModEntities.CARACARA_TYPE, CaracaraRenderer::new);
+        EntityRenderers.register(AnimalModEntities.ENDOVE_TYPE, EndoveRenderer::new);
 
     }
 }

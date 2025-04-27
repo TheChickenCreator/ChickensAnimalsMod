@@ -22,5 +22,8 @@ public class CCDataGenerators {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(true, new CCBiomeTagGenerator(packOutput, lookupProvider, existingFileHelper));
+
+        generator.addProvider(true, new CCBlockTagGenerator(packOutput, lookupProvider, existingFileHelper));
+
     }
 }

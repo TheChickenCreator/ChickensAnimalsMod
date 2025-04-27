@@ -1,0 +1,174 @@
+package chicken.creaturecorner.server.entity.obj;
+
+import chicken.creaturecorner.server.entity.AnimalModEntities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public class EndoveEntity extends PigeonEntity{
+    public EndoveEntity(EntityType<? extends Animal> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Override
+    public boolean isSensitiveToWater() {
+        return true;
+    }
+
+
+    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
+        if (this.isInvulnerableTo(pSource)) {
+            return false;
+        } else {
+            boolean flag = pSource.getDirectEntity() instanceof ThrownPotion;
+            if (!pSource.is(DamageTypeTags.IS_PROJECTILE) && !flag) {
+                boolean flag2 = super.hurt(pSource, pAmount);
+                if (!this.level().isClientSide() && !(pSource.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
+                    this.teleport();
+                }
+
+                return flag2;
+            } else {
+                boolean flag1 = flag && this.hurtWithCleanWater(pSource, (ThrownPotion)pSource.getDirectEntity(), pAmount);
+
+                for(int i = 0; i < 64; ++i) {
+                    if (this.teleport()) {
+                        return true;
+                    }
+                }
+
+                return flag1;
+            }
+        }
+    }
+
+    private boolean hurtWithCleanWater(DamageSource source, ThrownPotion potion, float amount) {
+        ItemStack itemstack = potion.getItem();
+        PotionContents potioncontents = itemstack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        return potioncontents.is(Potions.WATER) && super.hurt(source, amount);
+    }
+
+    @Override
+    public void aiStep() {
+        if (this.level().isClientSide) {
+            this.level().addParticle(ParticleTypes.PORTAL, this.getRandomX(0.5), this.getRandomY() - 0.25, this.getRandomZ(0.5), (this.random.nextDouble() - 0.5) * 2.0, -this.random.nextDouble(), (this.random.nextDouble() - 0.5) * 2.0);
+        }
+
+        if(this.getLastDamageSource() != null) {
+            teleport();
+        }
+
+        super.aiStep();
+    }
+
+
+    protected boolean teleport() {
+        if (!this.level().isClientSide() && this.isAlive()) {
+            double d0 = this.getX() + (this.random.nextDouble() - 0.5D) * 64.0D;
+            double d1 = this.getY() + (double)(this.random.nextInt(64) - 32);
+            double d2 = this.getZ() + (this.random.nextDouble() - 0.5D) * 64.0D;
+            return this.teleport(d0, d1, d2);
+        } else {
+            return false;
+        }
+    }
+
+    private boolean teleport(double pX, double pY, double pZ) {
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(pX, pY, pZ);
+
+        while(blockpos$mutableblockpos.getY() > this.level().getMinBuildHeight() && !this.level().getBlockState(blockpos$mutableblockpos).blocksMotion()) {
+            blockpos$mutableblockpos.move(Direction.DOWN);
+        }
+
+        BlockState blockstate = this.level().getBlockState(blockpos$mutableblockpos);
+        boolean flag = blockstate.blocksMotion();
+        boolean flag1 = blockstate.getFluidState().is(FluidTags.WATER);
+        if (flag && !flag1) {
+            Vec3 vec3 = this.position();
+            boolean flag2 = this.randomTeleport(pX, pY, pZ, true);
+            if (flag2) {
+                this.level().gameEvent(GameEvent.TELEPORT, vec3, GameEvent.Context.of(this));
+                if (!this.isSilent()) {
+                    this.level().playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
+                    this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+                }
+            }
+
+            return flag2;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor level, BlockPos pos, RandomSource random) {
+        if (level.getBrightness(LightLayer.SKY, pos) > random.nextInt(32)) {
+            return false;
+        } else {
+            DimensionType dimensiontype = level.dimensionType();
+            int i = dimensiontype.monsterSpawnBlockLightLimit();
+            if (i < 15 && level.getBrightness(LightLayer.BLOCK, pos) > i) {
+                return false;
+            } else {
+                int j = level.getLevel().isThundering() ? level.getMaxLocalRawBrightness(pos, 10) : level.getMaxLocalRawBrightness(pos);
+                return j <= dimensiontype.monsterSpawnLightTest().sample(random);
+            }
+        }
+    }
+
+    public static boolean checkMonsterSpawnRules(EntityType<? extends EndoveEntity> type, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        return (MobSpawnType.ignoresLightRequirements(spawnType) || isDarkEnoughToSpawn(level, pos, random)) && checkMobSpawnRules(type, level, spawnType, pos, random);
+    }
+
+    public static boolean checkAnyLightMonsterSpawnRules(EntityType<? extends EndoveEntity> type, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        return true;
+    }
+
+    @Override
+    public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
+
+        EndoveEntity entity = AnimalModEntities.ENDOVE_TYPE.create(serverLevel);
+
+        if(entity != null) {
+            entity.setBaby(true);
+        }
+
+        return entity;
+    }
+
+    public static boolean checkAnimalSpawnRules(EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        return level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON);
+    }
+
+    public static boolean canEndoveSpawn(EntityType<? extends Animal> animal, LevelAccessor worldIn, MobSpawnType reason, BlockPos pos, RandomSource random) {
+        return !worldIn.getBlockState(pos.below()).isAir();
+    }
+}

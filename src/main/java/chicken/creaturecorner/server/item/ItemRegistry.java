@@ -19,6 +19,10 @@ public class ItemRegistry {
     public static final DeferredItem<Item> PIGEON_EGG = ITEMS.register("pigeon_spawn_egg", () ->
             new DeferredSpawnEggItem(() -> AnimalModEntities.PIGEON_TYPE, 0x434A5E, 0x448675, new Item.Properties()));
 
+    public static final DeferredItem<Item> ENDOVE_SPAWN_EGG = ITEMS.register("endove_spawn_egg", () ->
+            new DeferredSpawnEggItem(() -> AnimalModEntities.ENDOVE_TYPE, 0x54365c, 0xb863a7, new Item.Properties()));
+
+
     public static final DeferredItem<Item> COYOTE_SPAWN_EGG = ITEMS.register("coyote_spawn_egg",
             ()-> new DeferredSpawnEggItem(() -> AnimalModEntities.COYOTE_TYPE, 0xA3582A, 0x3E333F, new Item.Properties()));
 

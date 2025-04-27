@@ -138,25 +138,6 @@ public class PigeonEntity extends GeoEntityBase {
 
     }
 
-//    class PigeonHurtByOtherGoal extends HurtByTargetGoal {
-//        PigeonHurtByOtherGoal(PigeonEntity mob) {
-//            super(mob);
-//        }
-//
-//        @Override
-//        public boolean canContinueToUse() {
-//            return PigeonEntity.this.isPanicking() || PigeonEntity.this.forcePanic && super.canContinueToUse();
-//        }
-//
-//        @Override
-//        protected void alertOther(Mob mob, LivingEntity target) {
-//            if (mob instanceof PigeonEntity && this.mob.hasLineOfSight(target)) {
-//                ((PigeonEntity) mob).forcePanic = true;
-//            }
-//        }
-//    }
-
-
     private void switchNavigator(boolean onLand) {
         if (onLand || this.isBaby()) {
             this.moveControl = new MoveControl(this);
@@ -234,7 +215,6 @@ public class PigeonEntity extends GeoEntityBase {
         return switch (getVariant()) {
             case 1 -> "white";
             case 2 -> "red";
-            case 3 -> "end";
             default -> "grey";
         };
     }
@@ -281,100 +261,16 @@ public class PigeonEntity extends GeoEntityBase {
         return 9;
     }
 
-    @Override
-    public boolean isSensitiveToWater() {
-        return getVariant() == 3;
-    }
-
-    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
-        if(getVariant() != 3) return super.hurt(pSource, pAmount);
-        if (this.isInvulnerableTo(pSource)) {
-            return false;
-        } else {
-            boolean flag = pSource.getDirectEntity() instanceof ThrownPotion;
-            if (!pSource.is(DamageTypeTags.IS_PROJECTILE) && !flag) {
-                boolean flag2 = super.hurt(pSource, pAmount);
-                if (!this.level().isClientSide() && !(pSource.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
-                    this.teleport();
-                }
-
-                return flag2;
-            } else {
-                boolean flag1 = flag && this.hurtWithCleanWater(pSource, (ThrownPotion)pSource.getDirectEntity(), pAmount);
-
-                for(int i = 0; i < 64; ++i) {
-                    if (this.teleport()) {
-                        return true;
-                    }
-                }
-
-                return flag1;
-            }
-        }
-    }
-
-    private boolean hurtWithCleanWater(DamageSource source, ThrownPotion potion, float amount) {
-        ItemStack itemstack = potion.getItem();
-        PotionContents potioncontents = itemstack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
-        return potioncontents.is(Potions.WATER) && super.hurt(source, amount);
-    }
-
 
     @Override
     public void aiStep() {
-        if(this.getVariant() == 3) {
-            if (this.level().isClientSide) {
-                this.level().addParticle(ParticleTypes.PORTAL, this.getRandomX(0.5), this.getRandomY() - 0.25, this.getRandomZ(0.5), (this.random.nextDouble() - 0.5) * 2.0, -this.random.nextDouble(), (this.random.nextDouble() - 0.5) * 2.0);
-            }
-        }
         if(this.getLastDamageSource() != null) {
             if(!this.getPanic()) {
-                if(this.getVariant() == 3) {
-                    teleport();
-                }
                 this.getNavigation().stop();
                 this.setPanic(true);
             }
         }
         super.aiStep();
-    }
-
-    protected boolean teleport() {
-        if (!this.level().isClientSide() && this.isAlive()) {
-            double d0 = this.getX() + (this.random.nextDouble() - 0.5D) * 64.0D;
-            double d1 = this.getY() + (double)(this.random.nextInt(64) - 32);
-            double d2 = this.getZ() + (this.random.nextDouble() - 0.5D) * 64.0D;
-            return this.teleport(d0, d1, d2);
-        } else {
-            return false;
-        }
-    }
-
-    private boolean teleport(double pX, double pY, double pZ) {
-        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(pX, pY, pZ);
-
-        while(blockpos$mutableblockpos.getY() > this.level().getMinBuildHeight() && !this.level().getBlockState(blockpos$mutableblockpos).blocksMotion()) {
-            blockpos$mutableblockpos.move(Direction.DOWN);
-        }
-
-        BlockState blockstate = this.level().getBlockState(blockpos$mutableblockpos);
-        boolean flag = blockstate.blocksMotion();
-        boolean flag1 = blockstate.getFluidState().is(FluidTags.WATER);
-        if (flag && !flag1) {
-            Vec3 vec3 = this.position();
-            boolean flag2 = this.randomTeleport(pX, pY, pZ, true);
-            if (flag2) {
-                this.level().gameEvent(GameEvent.TELEPORT, vec3, GameEvent.Context.of(this));
-                if (!this.isSilent()) {
-                    this.level().playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
-                    this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
-                }
-            }
-
-            return flag2;
-        } else {
-            return false;
-        }
     }
 
     @Override
@@ -388,9 +284,6 @@ public class PigeonEntity extends GeoEntityBase {
                 }
             }
         }
-
-
-
 
         if (this.isFollower() && this.leader!=null && this.random.nextInt(50)==0){
 
@@ -435,29 +328,6 @@ public class PigeonEntity extends GeoEntityBase {
                 this.schoolSize = 1;
             }
         }
-
-//        if (this.hasFollowers() && this.level().random.nextInt(200) == 1) {
-//            List<? extends PigeonEntity> list = this.level().getEntitiesOfClass(this.getClass(), this.getBoundingBox().inflate(8.0, 8.0, 8.0));
-//            if (list.size() <= 1) {
-//                this.schoolSize = 1;
-//            }
-//            if(list.size() >= this.schoolSize) {
-//                for (PigeonEntity entity : list) {
-//                    if(entity != this) {
-//                        if(entity.leader != this) {
-//                            if (entity.hasFollowers()) {
-//                                entity.schoolSize = 1;
-//                            }
-//                            if(entity.leader != null) {
-//                                entity.leader.schoolSize -=1;
-//                            }
-//                            entity.leader = this;
-//                            this.schoolSize += 1;
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
 
@@ -505,18 +375,13 @@ public class PigeonEntity extends GeoEntityBase {
             this.startFollowing(((PigeonEntity.SchoolSpawnGroupData)spawnGroupData).leader);
         }
 
-        if(level().dimensionTypeRegistration().is(BuiltinDimensionTypes.END)) {
-            this.setVariant(3);
-        } else {
-            this.setVariant(0);
+        this.setVariant(0);
 
-            if (!this.level().isClientSide()){
-                ServerLevel serverLevel = (ServerLevel)this.level();
-                if (serverLevel.isVillage(this.blockPosition())){
-                    this.setVariant(this.random.nextInt(3));
-                }
+        if (!this.level().isClientSide()){
+            ServerLevel serverLevel = (ServerLevel)this.level();
+            if (serverLevel.isVillage(this.blockPosition())){
+                this.setVariant(this.random.nextInt(3));
             }
-
         }
 
         return spawnGroupData;
@@ -579,13 +444,6 @@ public class PigeonEntity extends GeoEntityBase {
             entity.setBaby(true);
         }
         return entity;
-    }
-
-
-    @Override
-    public boolean canMate(Animal pOtherAnimal) {
-        PigeonEntity mate = (PigeonEntity) pOtherAnimal;
-        return super.canMate(pOtherAnimal) && (this.getVariant() == mate.getVariant() && this.getVariant() == 3);
     }
 
     @Override
