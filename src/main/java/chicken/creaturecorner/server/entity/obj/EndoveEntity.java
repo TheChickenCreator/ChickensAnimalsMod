@@ -129,29 +129,6 @@ public class EndoveEntity extends PigeonEntity{
         }
     }
 
-    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor level, BlockPos pos, RandomSource random) {
-        if (level.getBrightness(LightLayer.SKY, pos) > random.nextInt(32)) {
-            return false;
-        } else {
-            DimensionType dimensiontype = level.dimensionType();
-            int i = dimensiontype.monsterSpawnBlockLightLimit();
-            if (i < 15 && level.getBrightness(LightLayer.BLOCK, pos) > i) {
-                return false;
-            } else {
-                int j = level.getLevel().isThundering() ? level.getMaxLocalRawBrightness(pos, 10) : level.getMaxLocalRawBrightness(pos);
-                return j <= dimensiontype.monsterSpawnLightTest().sample(random);
-            }
-        }
-    }
-
-    public static boolean checkMonsterSpawnRules(EntityType<? extends EndoveEntity> type, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        return (MobSpawnType.ignoresLightRequirements(spawnType) || isDarkEnoughToSpawn(level, pos, random)) && checkMobSpawnRules(type, level, spawnType, pos, random);
-    }
-
-    public static boolean checkAnyLightMonsterSpawnRules(EntityType<? extends EndoveEntity> type, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        return true;
-    }
-
     @Override
     public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
 
@@ -162,10 +139,6 @@ public class EndoveEntity extends PigeonEntity{
         }
 
         return entity;
-    }
-
-    public static boolean checkAnimalSpawnRules(EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        return level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON);
     }
 
     public static boolean canEndoveSpawn(EntityType<? extends Animal> animal, LevelAccessor worldIn, MobSpawnType reason, BlockPos pos, RandomSource random) {
