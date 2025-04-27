@@ -1,10 +1,6 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": [
-    "minecraft:end_highlands",
-    "minecraft:end_midlands",
-    "minecraft:end_barrens"
-  ],
+  "biomes": "#creaturecorner:is_endove_biome",
   "spawners": {
     "type": "creaturecorner:endove",
     "maxCount": 15,

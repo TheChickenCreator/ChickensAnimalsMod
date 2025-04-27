@@ -384,6 +384,7 @@ public class PigeonEntity extends GeoEntityBase {
             }
         }
 
+        System.out.println(spawnGroupData);
         return spawnGroupData;
     }
 

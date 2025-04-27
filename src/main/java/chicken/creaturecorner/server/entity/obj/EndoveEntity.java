@@ -10,23 +10,30 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Objects;
 
 public class EndoveEntity extends PigeonEntity{
     public EndoveEntity(EntityType<? extends Animal> entityType, Level level) {
@@ -135,7 +142,26 @@ public class EndoveEntity extends PigeonEntity{
         return entity;
     }
 
-    public static boolean canEndoveSpawn(EntityType<? extends Animal> animal, LevelAccessor worldIn, MobSpawnType reason, BlockPos pos, RandomSource random) {
-        return !worldIn.getBlockState(pos.below()).isAir();
+    public static boolean canEndoveSpawn(EntityType<? extends Mob> animal, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+
+        if (!level.getBlockState(pos.below()).isAir() && level.getBlockState(pos).isAir()){
+
+            EndoveEntity endove = AnimalModEntities.ENDOVE_TYPE.get().create(level.getLevel());
+            if (endove != null) {
+                endove.moveTo(pos.getX(), pos.getY(), pos.getZ(), random.nextInt(360), 0.0F);
+                endove.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
+                level.addFreshEntity(endove);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        System.out.println("Trying to spawn endove");
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 }
