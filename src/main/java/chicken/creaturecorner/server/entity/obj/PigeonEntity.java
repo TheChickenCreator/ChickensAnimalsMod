@@ -368,19 +368,38 @@ public class PigeonEntity extends GeoEntityBase {
 
     @Override
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+
         super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+
         if (spawnGroupData == null) {
             spawnGroupData = new SchoolSpawnGroupData(true, this);
         } else {
             this.startFollowing(((PigeonEntity.SchoolSpawnGroupData)spawnGroupData).leader);
         }
 
-        this.setVariant(0);
+        if (spawnType != MobSpawnType.STRUCTURE){
 
-        if (!this.level().isClientSide()){
-            ServerLevel serverLevel = (ServerLevel)this.level();
-            if (serverLevel.isVillage(this.blockPosition())){
-                this.setVariant(this.random.nextInt(3));
+            if (!this.level().isClientSide()){
+                ServerLevel serverLevel = (ServerLevel)this.level();
+                if (serverLevel.isVillage(this.blockPosition())){
+                    this.setVariant(this.random.nextInt(3));
+                }else {
+                    this.setVariant(0);
+                }
+            }
+
+        }else{
+            this.setVariant(this.random.nextInt(3));
+
+            int extraBirds = this.getRandom().nextInt(1, 5);
+            for (int i = 0; i < extraBirds; i++){
+                PigeonEntity pigeon = AnimalModEntities.PIGEON_TYPE.get().create(level.getLevel());
+                if (pigeon != null) {
+                    pigeon.moveTo(this.getX(), this.getY(), this.getZ(), random.nextInt(360), 0.0F);
+                    pigeon.finalizeSpawn(level, level.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.NATURAL, spawnGroupData);
+                    pigeon.setVariant(this.random.nextInt(3));
+                    level.addFreshEntity(pigeon);
+                }
             }
         }
 

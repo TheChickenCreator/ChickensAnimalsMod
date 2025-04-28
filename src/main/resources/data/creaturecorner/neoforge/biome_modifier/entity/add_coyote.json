@@ -3,8 +3,8 @@
   "biomes": "#creaturecorner:is_coyote_biome",
   "spawners": {
     "type": "creaturecorner:coyote",
-    "maxCount": 3,
-    "minCount": 1,
+    "maxCount": 5,
+    "minCount": 2,
     "weight": 8
   }
 }
