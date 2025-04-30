@@ -55,12 +55,14 @@ public class CaracaraModel extends GeoModel<CaracaraEntity> {
             head.setRotX(entityData.headPitch() * ((float)Math.PI / 180F) * 0.75F);
             head.setRotY(entityData.netHeadYaw() * ((float)Math.PI / 180F) * 0.75F);
 
-            if (object.isFlying() && !object.isBaby() && !object.onGround()) {
-                flyRot.setRotX(-object.currentPitch);
-                flyRot.setRotZ(object.currentRoll);
-            }else {
-                flyRot.setRotX(0);
-                flyRot.setRotZ(0);
+            if (flyRot != null){
+                if (object.isFlying() && !object.isBaby() && !object.onGround()) {
+                    flyRot.setRotX(-object.currentPitch);
+                    flyRot.setRotZ(object.currentRoll);
+                }else {
+                    flyRot.setRotX(0);
+                    flyRot.setRotZ(0);
+                }
             }
 
         }

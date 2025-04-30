@@ -6,5 +6,80 @@
         "stream": true
       }
     ]
+  },
+  "pigeon_idle": {
+  "category": "neutral",
+  "sounds": [
+    {
+      "name": "creaturecorner:pigeon_idle_1"
+    },
+    {
+      "name": "creaturecorner:pigeon_idle_2"
+    },
+    {
+      "name": "creaturecorner:pigeon_idle_3"
+    }
+  ],
+  "subtitle": "creaturecorner.sound.subtitle.pigeon_idle"
+},
+  "pigeon_hurt": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:pigeon_hurt_1"
+      },
+      {
+        "name": "creaturecorner:pigeon_hurt_2"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.pigeon_hurt"
+  },
+  "pigeon_death": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:pigeon_death"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.pigeon_death"
+  },
+  "caracara_idle": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:caracara_idle_1"
+      },
+      {
+        "name": "creaturecorner:caracara_idle_2"
+      },
+      {
+        "name": "creaturecorner:caracara_idle_3"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.caracara_idle"
+  },
+  "caracara_hurt": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:caracara_hurt_1"
+      },
+      {
+        "name": "creaturecorner:caracara_hurt_2"
+      },
+      {
+        "name": "creaturecorner:caracara_hurt_3"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.caracara_hurt"
+  },
+  "caracara_death": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:caracara_death"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.caracara_death"
   }
 }

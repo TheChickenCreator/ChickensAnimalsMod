@@ -5,6 +5,7 @@ import chicken.creaturecorner.server.entity.AnimalModEntities;
 import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
 import chicken.creaturecorner.server.entity.obj.goal.PigeonFlockFollowLeader;
 import chicken.creaturecorner.server.entity.obj.goal.PigeonPanicGoal;
+import chicken.creaturecorner.server.sound.CCSounds;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +17,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.*;
 import net.minecraft.util.RandomSource;
@@ -245,7 +247,8 @@ public class PigeonEntity extends GeoEntityBase {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.FLYING_SPEED, 0.4F).add(Attributes.MOVEMENT_SPEED, 0.2F);
+        return Mob.createMobAttributes().add(Attributes.FLYING_SPEED, 0.4F)
+                .add(Attributes.MOVEMENT_SPEED, 0.2F).add(Attributes.MAX_HEALTH, 5);
     }
 
     @Override
@@ -594,4 +597,28 @@ public class PigeonEntity extends GeoEntityBase {
         }
         super.remove(reason);
     }
+
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return CCSounds.PIGEON_IDLE.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
+        return CCSounds.PIGEON_HURT.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return CCSounds.PIGEON_DEATH.get();
+    }
+
+    protected boolean isFlapping() {
+        return !this.onGround() && !this.isInWaterOrBubble() && this.getRandom().nextInt(10) == 0 ;
+    }
+
+    protected void onFlap() {
+        this.playSound(SoundEvents.PARROT_FLY, 0.15F, 1.0F);
+    }
+
 }

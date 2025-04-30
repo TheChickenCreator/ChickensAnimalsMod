@@ -19,6 +19,20 @@ public class CCSounds {
     public static final Supplier<SoundEvent> GALLIAN_GROTTO = registerSoundEvents("gallian_grotto");
     public static final ResourceKey<JukeboxSong> GALLIAN_GROTTO_KEY = createSong("gallian_grotto");
 
+    public static final Supplier<SoundEvent> PIGEON_IDLE = registerSoundEvents("pigeon_idle");
+    public static final Supplier<SoundEvent> PIGEON_HURT = registerSoundEvents("pigeon_hurt");
+    public static final Supplier<SoundEvent> PIGEON_DEATH = registerSoundEvents("pigeon_death");
+    public static final Supplier<SoundEvent> PIGEON_FLAP = registerSoundEvents("pigeon_flap");
+
+    public static final Supplier<SoundEvent> COYOTE_IDLE = registerSoundEvents("coyote_idle");
+    public static final Supplier<SoundEvent> COYOTE_HURT = registerSoundEvents("coyote_hurt");
+    public static final Supplier<SoundEvent> COYOTE_DEATH = registerSoundEvents("coyote_death");
+
+    public static final Supplier<SoundEvent> CARACARA_IDLE = registerSoundEvents("caracara_idle");
+    public static final Supplier<SoundEvent> CARACARA_HURT = registerSoundEvents("caracara_hurt");
+    public static final Supplier<SoundEvent> CARACARA_DEATH = registerSoundEvents("caracara_death");
+
+
     private static ResourceKey<JukeboxSong> createSong(String name){
         return ResourceKey.create(Registries.JUKEBOX_SONG, ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, name));
     }

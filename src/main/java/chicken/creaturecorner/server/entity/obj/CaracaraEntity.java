@@ -3,6 +3,7 @@ package chicken.creaturecorner.server.entity.obj;
 import chicken.creaturecorner.server.entity.AnimalModEntities;
 import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
 import chicken.creaturecorner.server.entity.obj.geo.goal.LookForFoodGoal;
+import chicken.creaturecorner.server.sound.CCSounds;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -13,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BiomeTags;
@@ -24,6 +26,7 @@ import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -818,5 +821,20 @@ public class CaracaraEntity extends GeoEntityBase implements NeutralMob {
             this.z = (double)0.0F;
             super.stop();
         }
+    }
+
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return CCSounds.CARACARA_IDLE.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
+        return CCSounds.CARACARA_HURT.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return CCSounds.CARACARA_DEATH.get();
     }
 }
