@@ -14,5 +14,22 @@
   "item.creaturecorner.gallian_grotto_disc": "Music Disc",
   "item.creaturecorner.gallian_grotto_disc.desc": "ChipsDahCat - Gallian Grotto",
 
+  "creaturecorner.sound.subtitle.pigeon_idle" : "Pigeon Coos",
+  "creaturecorner.sound.subtitle.pigeon_hurt" : "Pigeon Hurts",
+  "creaturecorner.sound.subtitle.pigeon_death" : "Pigeon Dies",
+  "creaturecorner.sound.subtitle.pigeon_flap" : "Pigeon's Wings Whistle",
+
+  "creaturecorner.sound.subtitle.endove_idle" : "Endove Coos",
+  "creaturecorner.sound.subtitle.endove_hurt" : "Endove Hurts",
+  "creaturecorner.sound.subtitle.endove_death" : "Endove Dies",
+
+  "creaturecorner.sound.subtitle.caracara_idle" : "Caracara Crackles",
+  "creaturecorner.sound.subtitle.caracara_hurt" : "Caracara Hurts",
+  "creaturecorner.sound.subtitle.caracara_death" : "Caracara Dies",
+
+  "creaturecorner.sound.subtitle.coyote_idle" : "Coyote Barks",
+  "creaturecorner.sound.subtitle.coyote_hurt" : "Coyote Hurts",
+  "creaturecorner.sound.subtitle.coyote_death" : "Coyote Dies",
+
   "creaturecorner.title.animal": "Creature Corner"
 }

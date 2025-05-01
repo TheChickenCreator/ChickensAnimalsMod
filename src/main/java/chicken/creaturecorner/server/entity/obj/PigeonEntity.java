@@ -618,7 +618,7 @@ public class PigeonEntity extends GeoEntityBase {
     }
 
     protected void onFlap() {
-        this.playSound(SoundEvents.PARROT_FLY, 0.15F, 1.0F);
+        this.playSound(CCSounds.PIGEON_FLAP.get(), 0.15F, 1.0F);
     }
 
 }

@@ -36,12 +36,7 @@ public class CoyoteModel extends GeoModel<CoyoteEntity> {
 
     @Override
     public ResourceLocation getAnimationResource(CoyoteEntity object) {
-        if (object.isBaby()){
-            return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "animations/animal/coyote/coyote_baby.animation.json");
-        }
-        else {
-            return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "animations/animal/coyote/coyote.animation.json");
-        }
+        return ResourceLocation.fromNamespaceAndPath(AnimalMod.MODID, "animations/animal/coyote/coyote.animation.json");
     }
 
     @Override

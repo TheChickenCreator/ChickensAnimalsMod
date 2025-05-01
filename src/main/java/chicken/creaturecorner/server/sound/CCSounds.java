@@ -23,6 +23,9 @@ public class CCSounds {
     public static final Supplier<SoundEvent> PIGEON_HURT = registerSoundEvents("pigeon_hurt");
     public static final Supplier<SoundEvent> PIGEON_DEATH = registerSoundEvents("pigeon_death");
     public static final Supplier<SoundEvent> PIGEON_FLAP = registerSoundEvents("pigeon_flap");
+    public static final Supplier<SoundEvent> ENDOVE_IDLE = registerSoundEvents("endove_idle");
+    public static final Supplier<SoundEvent> ENDOVE_HURT = registerSoundEvents("endove_hurt");
+    public static final Supplier<SoundEvent> ENDOVE_DEATH = registerSoundEvents("endove_death");
 
     public static final Supplier<SoundEvent> COYOTE_IDLE = registerSoundEvents("coyote_idle");
     public static final Supplier<SoundEvent> COYOTE_HURT = registerSoundEvents("coyote_hurt");

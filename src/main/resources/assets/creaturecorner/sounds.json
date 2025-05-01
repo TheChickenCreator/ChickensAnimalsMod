@@ -34,14 +34,74 @@
     ],
     "subtitle": "creaturecorner.sound.subtitle.pigeon_hurt"
   },
+  "pigeon_flap": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:pigeon_flap_1"
+      },
+      {
+        "name": "creaturecorner:pigeon_flap_2"
+      },
+      {
+        "name": "creaturecorner:pigeon_flap_3"
+      },
+      {
+        "name": "creaturecorner:pigeon_flap_4"
+      },
+      {
+        "name": "creaturecorner:pigeon_flap_5"
+      },
+      {
+        "name": "creaturecorner:pigeon_flap_6"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.pigeon_flaps"
+  },
   "pigeon_death": {
     "category": "neutral",
     "sounds": [
       {
-        "name": "creaturecorner:pigeon_death"
+        "name": "creaturecorner:endove_death"
       }
     ],
     "subtitle": "creaturecorner.sound.subtitle.pigeon_death"
+  },
+  "endove_idle": {
+  "category": "neutral",
+  "sounds": [
+    {
+      "name": "creaturecorner:endove_idle_1"
+    },
+    {
+      "name": "creaturecorner:endove_idle_2"
+    },
+    {
+      "name": "creaturecorner:endove_idle_3"
+    }
+  ],
+  "subtitle": "creaturecorner.sound.subtitle.endove_idle"
+},
+  "endove_hurt": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:endove_hurt_1"
+      },
+      {
+        "name": "creaturecorner:endove_hurt_2"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.endove_hurt"
+  },
+  "endove_death": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:endove_death"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.endove_death"
   },
   "caracara_idle": {
     "category": "neutral",
@@ -81,5 +141,41 @@
       }
     ],
     "subtitle": "creaturecorner.sound.subtitle.caracara_death"
+  },
+  "coyote_idle": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:coyote_idle_1"
+      },
+      {
+        "name": "creaturecorner:coyote_idle_2"
+      },
+      {
+        "name": "creaturecorner:coyote_idle_3"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.coyote_idle"
+  },
+  "coyote_hurt": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:coyote_hurt_1"
+      },
+      {
+        "name": "creaturecorner:coyote_hurt_2"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.coyote_hurt"
+  },
+  "coyote_death": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:coyote_death"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.coyote_death"
   }
 }

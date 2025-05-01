@@ -1,11 +1,13 @@
 package chicken.creaturecorner.server.entity.obj;
 
 import chicken.creaturecorner.server.entity.AnimalModEntities;
+import chicken.creaturecorner.server.sound.CCSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
@@ -163,5 +165,20 @@ public class EndoveEntity extends PigeonEntity{
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         System.out.println("Trying to spawn endove");
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+    }
+
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return CCSounds.ENDOVE_IDLE.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
+        return CCSounds.ENDOVE_HURT.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return CCSounds.ENDOVE_DEATH.get();
     }
 }

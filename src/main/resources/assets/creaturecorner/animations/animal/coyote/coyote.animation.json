@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"walk": {
+		"animation.coyote.walk": {
 			"loop": true,
 			"animation_length": 1,
 			"bones": {
@@ -211,7 +211,7 @@
 				}
 			}
 		},
-		"tamed": {
+		"animation.coyote.tamed": {
 			"loop": true,
 			"bones": {
 				"tongue1": {
@@ -236,7 +236,7 @@
 				}
 			}
 		},
-		"idle": {
+		"animation.coyote.idle": {
 			"loop": true,
 			"bones": {
 				"body": {
@@ -279,7 +279,7 @@
 				}
 			}
 		},
-		"sit": {
+		"animation.coyote.sit": {
 			"loop": true,
 			"bones": {
 				"body": {
@@ -294,7 +294,7 @@
 				},
 				"tail": {
 					"rotation": {
-						"vector": [112.5, 0, "0+Math.sin((query.anim_time)*360/2+25)*15"],
+						"vector": [112.5, 0, "Math.sin((query.anim_time)*360/2+25)*15"],
 						"easing": "linear"
 					},
 					"position": {
@@ -366,7 +366,7 @@
 				}
 			}
 		},
-		"ear_scratch": {
+		"animation.coyote.ear_scratch": {
 			"animation_length": 2.0833,
 			"bones": {
 				"leg3": {
@@ -815,7 +815,7 @@
 				}
 			}
 		},
-		"run": {
+		"animation.coyote.run": {
 			"loop": true,
 			"animation_length": 0.5,
 			"bones": {
@@ -1003,7 +1003,7 @@
 				}
 			}
 		},
-		"howl": {
+		"animation.coyote.howl": {
 			"animation_length": 1.6667,
 			"bones": {
 				"leg1": {
@@ -1276,7 +1276,7 @@
 				}
 			}
 		},
-		"baby_walk": {
+		"animation.coyote.baby_walk": {
 			"loop": true,
 			"animation_length": 1,
 			"bones": {
@@ -1322,7 +1322,7 @@
 				},
 				"leg2": {
 					"rotation": {
-						"vector": ["0+Math.cos((query.anim_time)*360)*20", 0, 0],
+						"vector": ["Math.cos((query.anim_time)*360)*20", 0, 0],
 						"easing": "linear"
 					},
 					"position": {
@@ -1362,7 +1362,7 @@
 				},
 				"leg3": {
 					"rotation": {
-						"vector": ["0+Math.cos((query.anim_time)*360)*20", 0, 0],
+						"vector": ["Math.cos((query.anim_time)*360)*20", 0, 0],
 						"easing": "linear"
 					},
 					"position": {
@@ -1442,7 +1442,7 @@
 				},
 				"body": {
 					"rotation": {
-						"vector": [0, 0, "0+Math.cos((query.anim_time)*360)*7.5"],
+						"vector": [0, 0, "Math.cos((query.anim_time)*360)*7.5"],
 						"easing": "linear"
 					},
 					"position": {
@@ -1458,7 +1458,7 @@
 				},
 				"head": {
 					"rotation": {
-						"vector": [0, 0, "0+Math.cos((query.anim_time)*360-25)*5"],
+						"vector": [0, 0, "Math.cos((query.anim_time)*360-25)*5"],
 						"easing": "linear"
 					},
 					"position": {
@@ -1468,19 +1468,19 @@
 				},
 				"ear2": {
 					"rotation": {
-						"vector": [0, 0, "0+Math.cos((query.anim_time)*360-75)*10"],
+						"vector": [0, 0, "Math.cos((query.anim_time)*360-75)*10"],
 						"easing": "linear"
 					}
 				},
 				"ear1": {
 					"rotation": {
-						"vector": [0, 0, "0+Math.cos((query.anim_time)*360-75)*10"],
+						"vector": [0, 0, "Math.cos((query.anim_time)*360-75)*10"],
 						"easing": "linear"
 					}
 				}
 			}
 		},
-		"baby_idle": {
+		"animation.coyote.baby_idle": {
 			"loop": true,
 			"bones": {
 				"body": {
@@ -1517,7 +1517,7 @@
 				},
 				"ear1": {
 					"rotation": {
-						"vector": [0, 0, "0+Math.cos((query.anim_time)*360*1.5-50)*2"],
+						"vector": [0, 0, "Math.cos((query.anim_time)*360*1.5-50)*2"],
 						"easing": "linear"
 					}
 				},
@@ -1547,7 +1547,7 @@
 				}
 			}
 		},
-		"baby_sit": {
+		"animation.coyote.baby_sit": {
 			"loop": true,
 			"bones": {
 				"body": {
@@ -1562,7 +1562,7 @@
 				},
 				"tail": {
 					"rotation": {
-						"vector": [112.5, 0, "0+Math.sin((query.anim_time)*360/2+25)*15"],
+						"vector": [112.5, 0, "Math.sin((query.anim_time)*360/2+25)*15"],
 						"easing": "linear"
 					},
 					"position": {
@@ -1634,7 +1634,7 @@
 				}
 			}
 		},
-		"baby_run": {
+		"animation.coyote.baby_run": {
 			"loop": true,
 			"animation_length": 0.5,
 			"bones": {
