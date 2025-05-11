@@ -475,7 +475,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
     }
 
     public int getRemainingPersistentAngerTime() {
-        return (Integer) this.entityData.get(DATA_REMAINING_ANGER_TIME);
+        return this.entityData.get(DATA_REMAINING_ANGER_TIME);
     }
 
     public void setRemainingPersistentAngerTime(int time) {

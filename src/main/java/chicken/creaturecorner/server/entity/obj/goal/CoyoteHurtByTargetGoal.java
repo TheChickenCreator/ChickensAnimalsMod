@@ -115,7 +115,7 @@ public class CoyoteHurtByTargetGoal extends TargetGoal {
             this.alertOthers();
         }
         if(this.mob instanceof CoyoteEntity entity) {
-            entity.checkOwnerHurt();
+            //entity.checkOwnerHurt();
             //entity.setOrderedToSit(false);
         }
 

@@ -34,6 +34,15 @@
     ],
     "subtitle": "creaturecorner.sound.subtitle.pigeon_hurt"
   },
+  "pigeon_death": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "creaturecorner:pigeon_death"
+      }
+    ],
+    "subtitle": "creaturecorner.sound.subtitle.pigeon_death"
+  },
   "pigeon_flap": {
     "category": "neutral",
     "sounds": [
@@ -57,15 +66,6 @@
       }
     ],
     "subtitle": "creaturecorner.sound.subtitle.pigeon_flaps"
-  },
-  "pigeon_death": {
-    "category": "neutral",
-    "sounds": [
-      {
-        "name": "creaturecorner:endove_death"
-      }
-    ],
-    "subtitle": "creaturecorner.sound.subtitle.pigeon_death"
   },
   "endove_idle": {
   "category": "neutral",
