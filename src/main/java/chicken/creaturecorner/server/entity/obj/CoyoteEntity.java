@@ -250,6 +250,7 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
                 InteractionResult interactionresult = super.mobInteract(player, hand);
                 if (!interactionresult.consumesAction() && this.isOwnedBy(player)) {
                     this.setOrderedToSit(!this.isOrderedToSit());
+                    this.setInSittingPose(this.isOrderedToSit());
                     this.jumping = false;
                     this.navigation.stop();
                     this.setTarget((LivingEntity) null);
@@ -456,8 +457,9 @@ public class CoyoteEntity extends GeoTamableEntity implements NeutralMob {
 
     private PlayState moveIdleController(AnimationState<CoyoteEntity> state) {
         if (!state.getAnimatable().isDeadOrDying()) {
-            if (state.getAnimatable().isOrderedToSit()) {
 
+            if (this.isInSittingPose()) {
+                System.out.println("sitting");
                 return state.setAndContinue(state.getAnimatable().isBaby() ? BABY_COYOTE_SIT : COYOTE_SIT);
 
             }   else if (state.isMoving()) {
