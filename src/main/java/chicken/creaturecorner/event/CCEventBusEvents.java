@@ -30,7 +30,7 @@ public class CCEventBusEvents {
         e.register(AnimalModEntities.PIGEON_TYPE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.WORLD_SURFACE, PigeonEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         e.register(AnimalModEntities.ENDOVE_TYPE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndoveEntity::canEndoveSpawn, RegisterSpawnPlacementsEvent.Operation.OR);
         e.register(AnimalModEntities.CARACARA_TYPE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CaracaraEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        e.register(AnimalModEntities.COYOTE_TYPE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CoyoteEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        e.register(AnimalModEntities.COYOTE_TYPE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CoyoteEntity::checkCoyoteSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
 

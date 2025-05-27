@@ -280,7 +280,7 @@ public class PigeonEntity extends GeoEntityBase {
     public void tick() {
         super.tick();
 
-        if (this.isFlying() && !this.onGround() && this.isFollower()){
+        if (this.isFlying() && !this.onGround()){
             if (this.random.nextInt(10)==0){
                 if (!findGroundPosition()){
                     this.setFlyTicks(0);
@@ -339,17 +339,20 @@ public class PigeonEntity extends GeoEntityBase {
     }
 
     public boolean inRangeOfLeader() {
-        return this.distanceToSqr(this.leader) <= 75.0;
+        return this.distanceToSqr(this.leader) <= 200.0;
     }
 
     public boolean isTooCloseToLeader() {
-        return this.distanceToSqr(this.leader) >= 3;
+        return this.distanceToSqr(this.leader) <= 3;
     }
 
     public boolean shouldMoveToLeader() {
-        if (!inRangeOfLeader()) return false;
-        assert this.leader != null;
-        return this.distanceToSqr(this.leader) >= 3;
+        if (this.leader == null){
+            return false;
+        }else {
+            if (!this.inRangeOfLeader()) return false;
+            return !this.isTooCloseToLeader();
+        }
     }
 
     public void pathToLeader() {
@@ -374,10 +377,12 @@ public class PigeonEntity extends GeoEntityBase {
 
         super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
 
-        if (spawnGroupData == null) {
-            spawnGroupData = new SchoolSpawnGroupData(true, this);
-        } else {
-            this.startFollowing(((PigeonEntity.SchoolSpawnGroupData)spawnGroupData).leader);
+        if (spawnType != MobSpawnType.SPAWN_EGG) {
+            if (spawnGroupData == null) {
+                spawnGroupData = new SchoolSpawnGroupData(true, this);
+            } else {
+                this.startFollowing(((SchoolSpawnGroupData)spawnGroupData).leader);
+            }
         }
 
         if (spawnType != MobSpawnType.STRUCTURE){
@@ -406,7 +411,6 @@ public class PigeonEntity extends GeoEntityBase {
             }
         }
 
-        System.out.println(spawnGroupData);
         return spawnGroupData;
     }
 
