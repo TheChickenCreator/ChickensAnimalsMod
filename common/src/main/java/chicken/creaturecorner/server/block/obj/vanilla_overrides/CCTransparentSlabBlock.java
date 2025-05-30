@@ -1,0 +1,139 @@
+package chicken.creaturecorner.server.block.obj.vanilla_overrides;
+
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+
+
+public class CCTransparentSlabBlock extends CCTransparentBlock implements SimpleWaterloggedBlock {
+    public static final MapCodec<CCTransparentBlock> CODEC = simpleCodec(CCTransparentBlock::new);
+    public static final EnumProperty<SlabType> TYPE = BlockStateProperties.SLAB_TYPE;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    protected static final VoxelShape BOTTOM_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
+    protected static final VoxelShape TOP_AABB = Block.box(0.0, 8.0, 0.0, 16.0, 16.0, 16.0);
+
+    @Override
+    public @NotNull MapCodec<? extends CCTransparentBlock> codec() {
+        return CODEC;
+    }
+
+    public CCTransparentSlabBlock(Properties p_56359_) {
+        super(p_56359_);
+        this.registerDefaultState(this.defaultBlockState().setValue(TYPE, SlabType.BOTTOM).setValue(WATERLOGGED, Boolean.FALSE));
+    }
+
+    @Override
+    protected boolean useShapeForLightOcclusion(BlockState pState) {
+        return pState.getValue(TYPE) != SlabType.DOUBLE;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+        pBuilder.add(TYPE, WATERLOGGED);
+    }
+
+    @Override
+    protected @NotNull VoxelShape getShape(BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+        SlabType slabtype = pState.getValue(TYPE);
+        return switch (slabtype) {
+            case DOUBLE -> Shapes.block();
+            case TOP -> TOP_AABB;
+            default -> BOTTOM_AABB;
+        };
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
+        BlockPos blockpos = pContext.getClickedPos();
+        BlockState blockstate = pContext.getLevel().getBlockState(blockpos);
+        if (blockstate.is(this)) {
+            return blockstate.setValue(TYPE, SlabType.DOUBLE).setValue(WATERLOGGED, Boolean.FALSE);
+        } else {
+            FluidState fluidstate = pContext.getLevel().getFluidState(blockpos);
+            BlockState blockstate1 = this.defaultBlockState()
+                    .setValue(TYPE, SlabType.BOTTOM)
+                    .setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
+            Direction direction = pContext.getClickedFace();
+            return direction != Direction.DOWN && (direction == Direction.UP || !(pContext.getClickLocation().y - (double)blockpos.getY() > 0.5))
+                    ? blockstate1
+                    : blockstate1.setValue(TYPE, SlabType.TOP);
+        }
+    }
+
+    @Override
+    protected boolean canBeReplaced(BlockState pState, BlockPlaceContext pUseContext) {
+        ItemStack itemstack = pUseContext.getItemInHand();
+        SlabType slabtype = pState.getValue(TYPE);
+        if (slabtype == SlabType.DOUBLE || !itemstack.is(this.asItem())) {
+            return false;
+        } else if (pUseContext.replacingClickedOnBlock()) {
+            boolean flag = pUseContext.getClickLocation().y - (double)pUseContext.getClickedPos().getY() > 0.5;
+            Direction direction = pUseContext.getClickedFace();
+            return slabtype == SlabType.BOTTOM
+                    ? direction == Direction.UP || flag && direction.getAxis().isHorizontal()
+                    : direction == Direction.DOWN || !flag && direction.getAxis().isHorizontal();
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    protected @NotNull FluidState getFluidState(BlockState pState) {
+        return pState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(pState);
+    }
+
+    @Override
+    public boolean placeLiquid(@NotNull LevelAccessor pLevel, @NotNull BlockPos pPos, BlockState pState, @NotNull FluidState pFluidState) {
+        return pState.getValue(TYPE) != SlabType.DOUBLE && SimpleWaterloggedBlock.super.placeLiquid(pLevel, pPos, pState, pFluidState);
+    }
+
+    @Override
+    public boolean canPlaceLiquid(Player pPlayer, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, BlockState pState, @NotNull Fluid pFluid) {
+        return pState.getValue(TYPE) != SlabType.DOUBLE && SimpleWaterloggedBlock.super.canPlaceLiquid(pPlayer, pLevel, pPos, pState, pFluid);
+    }
+
+    /**
+     * Update the provided state given the provided neighbor direction and neighbor state, returning a new state.
+     * For example, fences make their connections to the passed in state if possible, and wet concrete powder immediately returns its solidified counterpart.
+     * Note that this method should ideally consider only the specific direction passed in.
+     */
+    @Override
+    protected @NotNull BlockState updateShape(BlockState pState, @NotNull Direction pFacing, @NotNull BlockState pFacingState, @NotNull LevelAccessor pLevel, @NotNull BlockPos pCurrentPos, @NotNull BlockPos pFacingPos) {
+        if (pState.getValue(WATERLOGGED)) {
+            pLevel.scheduleTick(pCurrentPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
+        }
+
+        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
+
+    @Override
+    protected boolean isPathfindable(@NotNull BlockState pState, PathComputationType pPathComputationType) {
+        return switch (pPathComputationType) {
+            case LAND -> false;
+            case WATER -> pState.getFluidState().is(FluidTags.WATER);
+            case AIR -> false;
+        };
+    }
+}
