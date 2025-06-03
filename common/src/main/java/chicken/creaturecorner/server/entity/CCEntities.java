@@ -19,11 +19,11 @@ public class CCEntities {
                             .sized(0.7f, 0.9f)
                             .build(ResourceLocation.fromNamespaceAndPath(CCConstants.MOD_ID, "pigeon").toString()));
 
-    public static final Supplier<EntityType<NewPigeonEntity>> NEW_PIGEON =
-            register("new_pigeon",
-                    () -> EntityType.Builder.of(NewPigeonEntity::new, MobCategory.CREATURE)
-                            .sized(0.7f, 0.9f)
-                            .build(ResourceLocation.fromNamespaceAndPath(CCConstants.MOD_ID, "new_pigeon").toString()));
+//    public static final Supplier<EntityType<NewPigeonEntity>> NEW_PIGEON =
+//            register("new_pigeon",
+//                    () -> EntityType.Builder.of(NewPigeonEntity::new, MobCategory.CREATURE)
+//                            .sized(0.7f, 0.9f)
+//                            .build(ResourceLocation.fromNamespaceAndPath(CCConstants.MOD_ID, "new_pigeon").toString()));
 
     public static final Supplier<EntityType<EndoveEntity>> ENDOVE_TYPE =
             register("endove",

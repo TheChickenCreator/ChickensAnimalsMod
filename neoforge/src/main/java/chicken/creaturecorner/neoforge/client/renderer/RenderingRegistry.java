@@ -21,7 +21,7 @@ public class RenderingRegistry {
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(CCEntities.PIGEON_TYPE.get(), PigeonRenderer::new);
-        event.registerEntityRenderer(CCEntities.NEW_PIGEON.get(), NewPigeonRenderer::new);
+//        event.registerEntityRenderer(CCEntities.NEW_PIGEON.get(), NewPigeonRenderer::new);
         event.registerEntityRenderer(CCEntities.COYOTE_TYPE.get(), CoyoteRenderer::new);
         event.registerEntityRenderer(CCEntities.CARACARA_TYPE.get(), CaracaraRenderer::new);
         event.registerEntityRenderer(CCEntities.ENDOVE_TYPE.get(), EndoveRenderer::new);

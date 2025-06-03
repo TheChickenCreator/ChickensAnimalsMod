@@ -19,7 +19,7 @@ public class CCEventBusEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event){
         event.put(CCEntities.PIGEON_TYPE.get(), PigeonEntity.createAttributes().build());
-        event.put(CCEntities.NEW_PIGEON.get(), NewPigeonEntity.createAttributes().build());
+//        event.put(CCEntities.NEW_PIGEON.get(), NewPigeonEntity.createAttributes().build());
         event.put(CCEntities.ENDOVE_TYPE.get(), EndoveEntity.createAttributes().build());
         event.put(CCEntities.CARACARA_TYPE.get(), CaracaraEntity.createAttributes().build());
         event.put(CCEntities.COYOTE_TYPE.get(), CoyoteEntity.createAttributes().build());

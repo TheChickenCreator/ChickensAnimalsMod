@@ -16,8 +16,8 @@ public class CCItems {
     public static final Supplier<Item> PIGEON_EGG = register("pigeon_spawn_egg", () ->
             Services.GENERIC.createSpawnEgg(CCEntities.PIGEON_TYPE, 0x434A5E, 0x448675, new Item.Properties()));
 
-    public static final Supplier<Item> NEW_PIGEON_EGG = register("new_pigeon_spawn_egg", () ->
-            Services.GENERIC.createSpawnEgg(CCEntities.NEW_PIGEON, 0x434A5E, 0x448675, new Item.Properties()));
+//    public static final Supplier<Item> NEW_PIGEON_EGG = register("new_pigeon_spawn_egg", () ->
+//            Services.GENERIC.createSpawnEgg(CCEntities.NEW_PIGEON, 0x434A5E, 0x448675, new Item.Properties()));
 
     public static final Supplier<Item> ENDOVE_SPAWN_EGG = register("endove_spawn_egg", () ->
             Services.GENERIC.createSpawnEgg(CCEntities.ENDOVE_TYPE, 0x54365c, 0xb863a7, new Item.Properties()));

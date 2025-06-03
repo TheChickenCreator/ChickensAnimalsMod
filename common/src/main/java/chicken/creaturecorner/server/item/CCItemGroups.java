@@ -15,7 +15,7 @@ public class CCItemGroups {
             "animal_tab", () -> Services.GENERIC.createTab(CCItems.PIGEON_EGG.get().getDefaultInstance(),
                     (var1, output) -> {
                         output.accept(CCItems.PIGEON_EGG.get());
-                        output.accept(CCItems.NEW_PIGEON_EGG.get());
+//                        output.accept(CCItems.NEW_PIGEON_EGG.get());
                         output.accept(CCItems.ENDOVE_SPAWN_EGG.get());
                         output.accept(CCItems.COYOTE_SPAWN_EGG.get());
                         output.accept(CCItems.CARACARA_SPAWN_EGG.get());

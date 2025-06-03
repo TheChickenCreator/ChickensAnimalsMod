@@ -17,6 +17,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -42,7 +44,6 @@ import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -91,8 +92,8 @@ public class NewPigeonEntity extends GeoEntityBase {
         this.groundPathNavigation = new GroundAnimalNavigation(this, level);
         this.animalMoveControl = new AnimalMoveControl(this, 15);
         this.flyingMoveControl = new AnimalFlyingMoveControl(this, 15, false);
-        this.moveControl = onGround() ? animalMoveControl : flyingMoveControl;
-        this.navigation = onGround() ? groundPathNavigation : flyingPathNavigation;
+        this.moveControl = animalMoveControl;
+        this.navigation = groundPathNavigation;
         this.lookControl = new SmoothSwimmingLookControl(this, 15);
 
         this.setPathfindingMalus(PathType.FENCE, -32F);
@@ -116,7 +117,7 @@ public class NewPigeonEntity extends GeoEntityBase {
 
     @Override
     public AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
-        NewPigeonEntity entity = CCEntities.NEW_PIGEON.get().create(serverLevel);
+        NewPigeonEntity entity = null;
         if(entity != null) {
             if(ageableMob instanceof NewPigeonEntity otherParent) {
                 if (otherParent.getVariant() != this.getVariant()){
@@ -228,88 +229,146 @@ public class NewPigeonEntity extends GeoEntityBase {
             this.entityData.set(FLYING, true);
             this.entityData.set(WANTS_TO_LAND, true);
         }
-        if(!level().isClientSide) {
-            if(!this.isFlying() && this.navigation == flyingPathNavigation) {
+        var navigator = getNavigation();
+        Path path = navigator.getPath();
+        if(!this.onGround() && isFlying() && navigation == flyingPathNavigation) {
+            if (path != null) {
+                if (!path.isDone()) {
+                    BlockPos nextPos = path.getNextNodePos();
+                    int y = nextPos.getY();
+                    int difference = y - getBlockY();
+                    if (y > getBlockY()) {
+                        this.setDeltaMovement(this.getDeltaMovement().add(0.0, difference > 1 ? difference > 5 ? downWardsPush()*2 : downWardsPush() : downWardsPush()/2, 0.0));
+                    } else if (y < getBlockY()) {
+                        this.setDeltaMovement(this.getDeltaMovement().add(0.0, difference > -1 ? difference > 5 ? -(downWardsPush()*2) : -downWardsPush() : -(downWardsPush()/2), 0.0));
+                    }
+                    if (navigator.isStuck()) {
+                        navigator.stop();
+                    }
+                    this.getLookControl().setLookAt(nextPos.getCenter());
+                }
+            } else {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -downWardsPush()/2, 0.0));
+                this.setOnGroundWithMovement(this.verticalCollisionBelow, getDeltaMovement());
+            }
+        }
+
+        if(!this.isFlying() && this.navigation == flyingPathNavigation) {
+            this.entityData.set(FLYING, true);
+        }
+
+        if (this.isFlying() && !wantsToLand()) {
+            if (this.getMoveControl() != flyingMoveControl) {
+                this.moveControl = flyingMoveControl;
                 this.entityData.set(FLYING, true);
             }
-
-            if (this.isFlying() && !wantsToLand()) {
-                if (this.getMoveControl() != flyingMoveControl) {
-                    this.moveControl = flyingMoveControl;
-                    this.entityData.set(FLYING, true);
-                }
-                if (this.getNavigation() != flyingPathNavigation) {
-                    this.navigation = flyingPathNavigation;
-                    this.entityData.set(FLYING, true);
-                }
-                if (this.random.nextFloat() < 0.005F && random.nextBoolean()) {
-                    this.entityData.set(WANTS_TO_LAND, true);
-                    if(hasFollowers() || leader != null) {
-                        if(!hasFollowers() && leader != null) {
-                            if(leader.hasFollowers()) {
-                                for (NewPigeonEntity follower : leader.followers) {
-                                    follower.getEntityData().set(WANTS_TO_LAND, true);
-                                }
-                            }
-                        } else if(leader == this && hasFollowers()) {
-                            for (NewPigeonEntity follower : followers) {
+            if (this.getNavigation() != flyingPathNavigation) {
+                this.navigation = flyingPathNavigation;
+                this.entityData.set(FLYING, true);
+            }
+            if (this.random.nextFloat() < 0.005F && random.nextBoolean()) {
+                this.entityData.set(WANTS_TO_LAND, true);
+                if(hasFollowers() || leader != null) {
+                    if(!hasFollowers() && leader != null) {
+                        if(leader.hasFollowers()) {
+                            for (NewPigeonEntity follower : leader.followers) {
                                 follower.getEntityData().set(WANTS_TO_LAND, true);
                             }
                         }
-                    }
-                }
-                var navigator = getNavigation();
-                Path path = navigator.getPath();
-                if(!this.onGround() && !(isInLiquid() || isInWater() || wasEyeInWater)) {
-                    if (path != null) {
-                        if (!path.isDone()) {
-                            BlockPos nextPos = path.getNextNodePos();
-                            if (navigator.isStuck()) {
-                                navigator.stop();
-                            }
-                            this.getLookControl().setLookAt(nextPos.getCenter());
-                        }
-                    }
-                }
-            } else if (this.onGround()) {
-                if (this.wantsToLand()) {
-                    this.entityData.set(WANTS_TO_LAND, false);
-                    this.entityData.set(FLYING, false);
-                }
-                if (this.getMoveControl() != animalMoveControl) {
-                    this.moveControl = animalMoveControl;
-                    this.setDeltaMovement(new Vec3(0,0,0));
-                    this.entityData.set(FLYING, false);
-                }
-                if (this.getNavigation() != groundPathNavigation) {
-                    this.navigation = groundPathNavigation;
-                    this.setDeltaMovement(new Vec3(0,0,0));
-                    this.entityData.set(FLYING, false);
-                    return;
-                }
-                if(this.leader != null) {
-                    if(leader instanceof NewPigeonEntity base) {
-                        if(base.isFlying()) {
-                            this.entityData.set(FLYING, true);
-                        }
-
-                        if(base.wantsToLand()) {
-                            this.entityData.set(WANTS_TO_LAND, true);
-                        }
-                    }
-                }
-                if (this.random.nextFloat() < 0.005F && random.nextBoolean()) {
-                    if(hasFollowers() || leader == null) {
-                        this.entityData.set(FLYING, true);
+                    } else if(leader == this && hasFollowers()) {
                         for (NewPigeonEntity follower : followers) {
-                            follower.getEntityData().set(FLYING, true);
+                            follower.getEntityData().set(WANTS_TO_LAND, true);
                         }
                     }
-
-                    return;
                 }
             }
+        } else if (this.onGround()) {
+            if (this.wantsToLand()) {
+                this.entityData.set(WANTS_TO_LAND, false);
+                this.entityData.set(FLYING, false);
+            }
+            if (this.getMoveControl() != animalMoveControl) {
+                this.moveControl = animalMoveControl;
+                this.setDeltaMovement(new Vec3(0,0,0));
+                this.entityData.set(FLYING, false);
+            }
+            if (this.getNavigation() != groundPathNavigation) {
+                this.navigation = groundPathNavigation;
+                this.setDeltaMovement(new Vec3(0,0,0));
+                this.entityData.set(FLYING, false);
+                return;
+            }
+            if(this.leader != null) {
+                if(leader instanceof NewPigeonEntity base) {
+                    if(base.isFlying()) {
+                        this.entityData.set(FLYING, true);
+                    }
+
+                    if(base.wantsToLand()) {
+                        this.entityData.set(WANTS_TO_LAND, true);
+                    }
+                }
+            }
+            if (this.random.nextFloat() < 0.005F && random.nextBoolean()) {
+                if(hasFollowers() || leader == null) {
+                    this.entityData.set(FLYING, true);
+                    for (NewPigeonEntity follower : followers) {
+                        follower.getEntityData().set(FLYING, true);
+                    }
+                }
+
+                return;
+            }
         }
+    }
+
+    @Override
+    public void jumpFromGround() {
+        if(isFlying() && navigation == flyingPathNavigation) return;
+        super.jumpFromGround();
+    }
+
+    @Override
+    protected void jumpInLiquid(TagKey<Fluid> fluidTag) {
+        if(isFlying() && navigation == flyingPathNavigation) return;
+        super.jumpInLiquid(fluidTag);
+    }
+
+    @Override
+    public void setJumping(boolean jumping) {
+        if(isFlying() && navigation == flyingPathNavigation) {
+            super.setJumping(false);
+            return;
+        }
+        super.setJumping(jumping);
+    }
+
+    @Override
+    public float getJumpBoostPower() {
+        if(isFlying() && navigation == flyingPathNavigation) return 0.0F;
+        return super.getJumpBoostPower();
+    }
+
+    @Override
+    protected float getJumpPower(float multiplier) {
+        if(isFlying() && navigation == flyingPathNavigation) return 0.0F;
+        return super.getJumpPower(multiplier);
+    }
+
+    @Override
+    protected float getJumpPower() {
+        if(isFlying() && navigation == flyingPathNavigation) return 0.0F;
+        return super.getJumpPower();
+    }
+
+    @Override
+    protected float getBlockJumpFactor() {
+        if(isFlying() && navigation == flyingPathNavigation) return 0.0F;
+        return super.getBlockJumpFactor();
+    }
+
+    public double downWardsPush() {
+        return 0.0055;
     }
 
     @Override
@@ -420,23 +479,20 @@ public class NewPigeonEntity extends GeoEntityBase {
 
     @Override
     public void travel(@NotNull Vec3 travelVector) {
-        if(isFlying()) {
-            if (this.isControlledByLocalInstance()) {
-                if (this.isInWater()) {
-                    this.moveRelative(0.02F, travelVector);
-                    this.move(MoverType.SELF, this.getDeltaMovement());
-                    this.setDeltaMovement(this.getDeltaMovement().scale(0.8F));
-                } else if (this.isInLava()) {
-                    this.moveRelative(0.02F, travelVector);
-                    this.move(MoverType.SELF, this.getDeltaMovement());
-                    this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
-                } else {
-                    float speed = getSpeed();
-
-                    this.moveRelative(speed, travelVector);
-                    this.move(MoverType.SELF, this.getDeltaMovement());
-                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.91F, 0.91F, 0.91F));
-                }
+        if(isFlying() && navigation == flyingPathNavigation) {
+            if (this.isInWater()) {
+                this.moveRelative(0.02F, travelVector);
+                this.move(MoverType.SELF, this.getDeltaMovement());
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.8F));
+            } else if (this.isInLava()) {
+                this.moveRelative(0.02F, travelVector);
+                this.move(MoverType.SELF, this.getDeltaMovement());
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
+            } else {
+                float speed = getSpeed();
+                this.moveRelative(speed, travelVector);
+                this.move(MoverType.SELF, this.getDeltaMovement());
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.91F, 0.91F, 0.91F));
             }
         } else {
             super.travel(travelVector);
@@ -447,8 +503,6 @@ public class NewPigeonEntity extends GeoEntityBase {
     public float getSpeed() {
         return isFlying() ? (float) getAttributes().getBaseValue(Attributes.FLYING_SPEED) : super.getSpeed();
     }
-
-
 
     @Override
     public int getMaxHeadYRot() {
@@ -613,9 +667,7 @@ public class NewPigeonEntity extends GeoEntityBase {
             return false;
         }
 
-        @Nullable
         protected Vec3 getPosition() {
-            //Wanderxz twice because it needs to go way lower
             if(mob.wantsToLand()) return LandRandomPos.getPos(this.mob, wanderXz, wanderXz);
             boolean bool = mob.getRandom().nextBoolean();
             int value = bool ? -1 : 1;
@@ -711,8 +763,7 @@ public class NewPigeonEntity extends GeoEntityBase {
                 }
             }
         }
-
-        @Nullable
+        
         protected Vec3 getPosition() {
             return LandRandomPos.getPos(this.mob, xRange, yRange);
         }
@@ -736,7 +787,6 @@ public class NewPigeonEntity extends GeoEntityBase {
         public void trigger() {
             this.forceTrigger = true;
         }
-
     }
 
     private static class PigeonFlock extends Goal {

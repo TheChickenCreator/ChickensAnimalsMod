@@ -53,15 +53,12 @@ public class NewPigeonModel extends GeoModel<NewPigeonEntity> {
 
     @Override
     public void setCustomAnimations(NewPigeonEntity object, long instanceId, AnimationState<NewPigeonEntity> animationEvent) {
-
-        super.setCustomAnimations(object, instanceId, animationEvent);
-
         if (animationEvent == null) return;
 
         GeoBone head = this.getAnimationProcessor().getBone("head_look");
 
         EntityModelData entityData = animationEvent.getData(DataTickets.ENTITY_MODEL_DATA);
-        head.setRotX(-(entityData.headPitch() * ((float) Math.PI / 180F)));
+        head.setRotX(entityData.headPitch() * ((float) Math.PI / 180F));
         head.setRotY(entityData.netHeadYaw() * ((float) Math.PI / 180F));
     }
 
