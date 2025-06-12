@@ -72,7 +72,7 @@ public class GallianChickModel<T extends GallianEntity> extends HierarchicalMode
 		this.animate(entity.peckAnimationState, GallianChickAnims.PECK, ageInTicks, 1);
 		this.animate(entity.idleBlinkAnimationState, GallianChickAnims.TAIL_SHAKE, ageInTicks, 1);
 
-		this.animateWalk(GallianChickAnims.WALK, limbSwing, limbSwingAmount, 0.5f, 1f);
+		this.animateWalk(GallianChickAnims.WALK, limbSwing, limbSwingAmount, 1.5f, 1f);
 	}
 
 	@Override

@@ -168,9 +168,12 @@ public class GallianModel<T extends GallianEntity> extends HierarchicalModel<T> 
 
 		if (entity.isAggressive()){
 			this.applyStatic(GallianAnims.SQUINT);
-			this.animateWalk(GallianAnims.RUN, limbSwing, limbSwingAmount, 2f, 1f);
+		}
+
+		if (entity.isSprinting()){
+			this.animateWalk(GallianAnims.RUN, limbSwing, limbSwingAmount, 1.5f, 1f);
 		}else {
-			this.animateWalk(GallianAnims.WALK, limbSwing, limbSwingAmount, 1f, 1f);
+			this.animateWalk(GallianAnims.WALK, limbSwing, limbSwingAmount, 2f, 2f);
 		}
 
 		this.animate(entity.idleAnimationState, GallianAnims.IDLE, ageInTicks, 1);
