@@ -2,8 +2,8 @@ package chicken.creaturecorner.server.entity.obj;
 
 import chicken.creaturecorner.server.entity.CCEntities;
 import chicken.creaturecorner.server.entity.obj.control.AnimalMoveControl;
-import chicken.creaturecorner.server.entity.obj.geo.GeoTamableEntity;
-import chicken.creaturecorner.server.entity.obj.geo.goal.LookForFoodGoal;
+import chicken.creaturecorner.server.entity.obj.base.GeoTamableEntity;
+import chicken.creaturecorner.server.entity.obj.base.goal.LookForFoodGoal;
 import chicken.creaturecorner.server.entity.obj.goal.ModSitWhenOrdererdGoal;
 import chicken.creaturecorner.server.sound.CCSounds;
 import net.minecraft.core.BlockPos;
@@ -34,7 +34,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.LookControl;
-import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;

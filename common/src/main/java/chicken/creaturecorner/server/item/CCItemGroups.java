@@ -19,6 +19,7 @@ public class CCItemGroups {
                         output.accept(CCItems.ENDOVE_SPAWN_EGG.get());
                         output.accept(CCItems.COYOTE_SPAWN_EGG.get());
                         output.accept(CCItems.CARACARA_SPAWN_EGG.get());
+                        output.accept(CCItems.GALLIAN_SPAWN_EGG.get());
                         output.accept(CCItems.GALLIAN_GROTTO_DISC.get());
                     },
                     Component.translatable("creaturecorner.title.animal")));

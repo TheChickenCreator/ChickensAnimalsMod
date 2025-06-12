@@ -1,6 +1,6 @@
-package chicken.creaturecorner.server.entity.obj.geo.goal;
+package chicken.creaturecorner.server.entity.obj.base.goal;
 
-import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
+import chicken.creaturecorner.server.entity.obj.base.GeoEntityBase;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;

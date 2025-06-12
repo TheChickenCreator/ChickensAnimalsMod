@@ -1,6 +1,6 @@
-package chicken.creaturecorner.server.entity.obj.geo.goal;
+package chicken.creaturecorner.server.entity.obj.base.goal;
 
-import chicken.creaturecorner.server.entity.obj.geo.GeoTamableEntity;
+import chicken.creaturecorner.server.entity.obj.base.GeoTamableEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 

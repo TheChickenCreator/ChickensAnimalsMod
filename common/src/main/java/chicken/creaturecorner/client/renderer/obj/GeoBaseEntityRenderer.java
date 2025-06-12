@@ -2,7 +2,7 @@ package chicken.creaturecorner.client.renderer.obj;
 
 import chicken.creaturecorner.CCConstants;
 import chicken.creaturecorner.server.entity.obj.EntityHolder;
-import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
+import chicken.creaturecorner.server.entity.obj.base.GeoEntityBase;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;

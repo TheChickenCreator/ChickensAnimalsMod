@@ -1,4 +1,4 @@
-package chicken.creaturecorner.server.entity.obj.geo;
+package chicken.creaturecorner.server.entity.obj.base;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;

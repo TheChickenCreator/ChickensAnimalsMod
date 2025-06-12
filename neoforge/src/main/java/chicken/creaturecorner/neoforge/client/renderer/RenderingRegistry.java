@@ -25,5 +25,7 @@ public class RenderingRegistry {
         event.registerEntityRenderer(CCEntities.COYOTE_TYPE.get(), CoyoteRenderer::new);
         event.registerEntityRenderer(CCEntities.CARACARA_TYPE.get(), CaracaraRenderer::new);
         event.registerEntityRenderer(CCEntities.ENDOVE_TYPE.get(), EndoveRenderer::new);
+
+        event.registerEntityRenderer(CCEntities.GALLIAN.get(), GallianRenderer::new);
     }
 }

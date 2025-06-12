@@ -43,6 +43,14 @@ public class CCEntities {
                             .sized(0.7F, 0.8F)
                             .build(ResourceLocation.fromNamespaceAndPath(CCConstants.MOD_ID, "coyote").toString()));
 
+
+    public static final Supplier<EntityType<GallianEntity>> GALLIAN =
+            register("gallian",
+                    () -> EntityType.Builder.of(GallianEntity::new, MobCategory.CREATURE)
+                            .sized(1.25f, 2.9f)
+                            .build(ResourceLocation.fromNamespaceAndPath(CCConstants.MOD_ID, "gallian").toString()));
+
+
     public static<T extends Entity> Supplier<EntityType<T>> register(String s, Supplier<EntityType<T>> item) {
         item = Suppliers.memoize(item);
         Services.PLATFORM.register(BuiltInRegistries.ENTITY_TYPE, s, item::get);

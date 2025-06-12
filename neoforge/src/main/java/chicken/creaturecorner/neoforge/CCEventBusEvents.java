@@ -23,6 +23,8 @@ public class CCEventBusEvents {
         event.put(CCEntities.ENDOVE_TYPE.get(), EndoveEntity.createAttributes().build());
         event.put(CCEntities.CARACARA_TYPE.get(), CaracaraEntity.createAttributes().build());
         event.put(CCEntities.COYOTE_TYPE.get(), CoyoteEntity.createAttributes().build());
+
+        event.put(CCEntities.GALLIAN.get(), GallianEntity.createAttributes().build());
     }
 
     @SubscribeEvent

@@ -1,6 +1,6 @@
 package chicken.creaturecorner.server.entity.obj.control;
 
-import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
+import chicken.creaturecorner.server.entity.obj.base.GeoEntityBase;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 

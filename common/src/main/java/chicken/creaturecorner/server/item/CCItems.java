@@ -28,6 +28,9 @@ public class CCItems {
     public static final Supplier<Item> CARACARA_SPAWN_EGG = register("caracara_spawn_egg",
             ()-> Services.GENERIC.createSpawnEgg(CCEntities.CARACARA_TYPE, 0x3c2726, 0xead8be, new Item.Properties()));
 
+    public static final Supplier<Item> GALLIAN_SPAWN_EGG = register("gallian_spawn_egg",
+            ()-> Services.GENERIC.createSpawnEgg(CCEntities.GALLIAN, 0x6f90ae, 0x657241, new Item.Properties()));
+
     public static Supplier<Item> register(String s, Supplier<Item> item) {
         item = Suppliers.memoize(item);
         Services.PLATFORM.register(BuiltInRegistries.ITEM, s, item);

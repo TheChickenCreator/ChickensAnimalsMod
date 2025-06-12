@@ -1,7 +1,7 @@
 package chicken.creaturecorner.server.entity.obj.goal;
 
 import chicken.creaturecorner.server.entity.obj.CoyoteEntity;
-import chicken.creaturecorner.server.entity.obj.geo.GeoTamableEntity;
+import chicken.creaturecorner.server.entity.obj.base.GeoTamableEntity;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;

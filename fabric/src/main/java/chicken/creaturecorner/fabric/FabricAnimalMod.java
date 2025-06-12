@@ -18,6 +18,8 @@ public class FabricAnimalMod implements ModInitializer {
         FabricDefaultAttributeRegistry.register(CCEntities.CARACARA_TYPE.get(), CaracaraEntity.createAttributes().build());
         FabricDefaultAttributeRegistry.register(CCEntities.COYOTE_TYPE.get(), CoyoteEntity.createAttributes().build());
 
+        FabricDefaultAttributeRegistry.register(CCEntities.GALLIAN.get(), GallianEntity.createAttributes().build());
+
         CCEntitySpawns.init();
     }
 }

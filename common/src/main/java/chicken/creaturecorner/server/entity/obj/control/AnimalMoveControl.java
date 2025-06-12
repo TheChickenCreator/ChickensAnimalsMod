@@ -1,6 +1,6 @@
 package chicken.creaturecorner.server.entity.obj.control;
 
-import chicken.creaturecorner.server.entity.obj.geo.GeoEntityBase;
+import chicken.creaturecorner.server.entity.obj.base.GeoEntityBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
