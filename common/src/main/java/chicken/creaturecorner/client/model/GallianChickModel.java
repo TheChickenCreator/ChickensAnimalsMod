@@ -68,11 +68,15 @@ public class GallianChickModel<T extends GallianEntity> extends HierarchicalMode
 	public void setupAnim(GallianEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
 
+		this.head.xRot = headPitch * ((float)Math.PI / 180F);
+		this.head.yRot = netHeadYaw * ((float)Math.PI / 180F);
+
 		this.animate(entity.idleAnimationState, GallianChickAnims.IDLE, ageInTicks, 1);
 		this.animate(entity.peckAnimationState, GallianChickAnims.PECK, ageInTicks, 1);
 		this.animate(entity.idleBlinkAnimationState, GallianChickAnims.TAIL_SHAKE, ageInTicks, 1);
 
-		this.animateWalk(GallianChickAnims.WALK, limbSwing, limbSwingAmount, 1.5f, 1f);
+		this.animateWalk(GallianChickAnims.WALK, limbSwing*3, limbSwingAmount*4, 1f, 2f);
+
 	}
 
 	@Override

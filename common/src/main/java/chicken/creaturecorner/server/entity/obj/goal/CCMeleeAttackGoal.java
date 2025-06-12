@@ -44,7 +44,7 @@ public class CCMeleeAttackGoal extends Goal {
                 return false;
             } else {
                 this.path = this.mob.getNavigation().createPath(livingentity, 0);
-                return this.path != null ? true : this.mob.isWithinMeleeAttackRange(livingentity);
+                return this.path != null || this.mob.isWithinMeleeAttackRange(livingentity);
             }
         }
     }
@@ -58,7 +58,7 @@ public class CCMeleeAttackGoal extends Goal {
         } else if (!this.followingTargetEvenIfNotSeen) {
             return !this.mob.getNavigation().isDone();
         } else {
-            return !this.mob.isWithinRestriction(livingentity.blockPosition()) ? false : !(livingentity instanceof Player) || !livingentity.isSpectator() && !((Player)livingentity).isCreative();
+            return this.mob.isWithinRestriction(livingentity.blockPosition()) && (!(livingentity instanceof Player) || !livingentity.isSpectator() && !((Player) livingentity).isCreative());
         }
     }
 

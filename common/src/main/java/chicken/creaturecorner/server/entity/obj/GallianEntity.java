@@ -25,6 +25,8 @@ import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
 
@@ -57,8 +59,8 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
         this.eatBlockGoal = new EatGrassGoal(this, 20);
 
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new AnimatedAttackGoal(this, 1, true, 8, 7));
-        this.goalSelector.addGoal(2, new MoveTowardsTargetGoal(this, 1.5D, 32.0F));
+        this.goalSelector.addGoal(1, new AnimatedAttackGoal(this, 2.5, true, 8, 7));
+        this.goalSelector.addGoal(2, new MoveTowardsTargetGoal(this, 1D, 32.0F));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1));
         this.goalSelector.addGoal(5, eatBlockGoal);
         this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0F));
@@ -87,6 +89,11 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
         builder.define(DATA_REMAINING_ANGER_TIME, 0);
         builder.define(ATTACKING, false);
         builder.define(IS_EATING, false);
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        return super.canAttack(target) && !this.isBaby();
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {
@@ -205,6 +212,37 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
         }
 
     }
+
+
+    protected AABB getTargetHitbox(LivingEntity target) {
+        AABB aabb = target.getBoundingBox();
+        Entity entity = target.getVehicle();
+        if (entity != null) {
+            Vec3 vec3 = entity.getPassengerRidingPosition(target);
+            return aabb.setMinY(Math.max(vec3.y, aabb.minY));
+        } else {
+            return aabb;
+        }
+    }
+
+    public boolean isWithinMeleeAttackRange(LivingEntity entity) {
+        return this.getAttackBoundingBox().intersects(this.getTargetHitbox(entity));
+    }
+
+    protected AABB getAttackBoundingBox() {
+        Entity entity = this.getVehicle();
+        AABB aabb;
+        if (entity != null) {
+            AABB aabb1 = entity.getBoundingBox();
+            AABB aabb2 = this.getBoundingBox();
+            aabb = new AABB(Math.min(aabb2.minX, aabb1.minX), aabb2.minY, Math.min(aabb2.minZ, aabb1.minZ), Math.max(aabb2.maxX, aabb1.maxX), aabb2.maxY, Math.max(aabb2.maxZ, aabb1.maxZ));
+        } else {
+            aabb = this.getBoundingBox();
+        }
+
+        return aabb.inflate(-0.1, -0.1, -0.1);
+    }
+
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {

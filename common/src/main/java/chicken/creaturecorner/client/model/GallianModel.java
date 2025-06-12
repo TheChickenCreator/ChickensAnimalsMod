@@ -166,14 +166,17 @@ public class GallianModel<T extends GallianEntity> extends HierarchicalModel<T> 
 	public void setupAnim(GallianEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
 
+		this.neck.xRot = headPitch * ((float)Math.PI / 180F);
+		this.neck.yRot = netHeadYaw * ((float)Math.PI / 180F);
+
 		if (entity.isAggressive()){
 			this.applyStatic(GallianAnims.SQUINT);
 		}
 
-		if (entity.isSprinting()){
-			this.animateWalk(GallianAnims.RUN, limbSwing, limbSwingAmount, 1.5f, 1f);
+		if (entity.isSprinting() || entity.isAggressive()){
+			this.animateWalk(GallianAnims.RUN, limbSwing, limbSwingAmount*0.75f, 1.5f, 1f);
 		}else {
-			this.animateWalk(GallianAnims.WALK, limbSwing, limbSwingAmount, 2f, 2f);
+			this.animateWalk(GallianAnims.WALK, limbSwing*2.25f, limbSwingAmount*8, 2f, 2f);
 		}
 
 		this.animate(entity.idleAnimationState, GallianAnims.IDLE, ageInTicks, 1);

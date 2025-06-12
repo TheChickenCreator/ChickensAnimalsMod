@@ -23,38 +23,38 @@ public class AnimatedAttackGoal extends CCMeleeAttackGoal {
     @Override
     public void start() {
         super.start();
-        attackDelay = attackDelayStored;
-        ticksUntilNextAttack = ticksUntilNextAttackStored;
+        this.attackDelay = attackDelayStored;
+        this.ticksUntilNextAttack = ticksUntilNextAttackStored;
     }
 
-    protected void checkAndPerformAttack(LivingEntity pEnemy, double pDistToEnemySqr) {
-        if (isEnemyWithinAttackDistance(pEnemy, pDistToEnemySqr)) {
-            shouldCountTillNextAttack = true;
+    @Override
+    public void checkAndPerformAttack(LivingEntity pEnemy) {
+
+        //System.out.println(canPerformAttack(pEnemy));
+
+        if (this.mob.isWithinMeleeAttackRange(pEnemy)) {
+            this.shouldCountTillNextAttack = true;
 
             if(isTimeToStartAttackAnimation()) {
-                if (entity instanceof IAnimatedAttacker attacker)
+                if (this.entity instanceof IAnimatedAttacker attacker)
                     attacker.setAttacking(true);
             }
 
             if(isTimeToAttack()) {
                 this.mob.getLookControl().setLookAt(pEnemy.getX(), pEnemy.getEyeY(), pEnemy.getZ());
-                performAttack(pEnemy);
+                this.performAttack(pEnemy);
             }
 
         } else {
-            resetAttackCooldown();
-            shouldCountTillNextAttack = false;
+            this.resetAttackCooldown();
+            this.shouldCountTillNextAttack = false;
 
-            if (entity instanceof IAnimatedAttacker attacker){
+            if (this.entity instanceof IAnimatedAttacker attacker){
                 attacker.setAttacking(false);
                 attacker.setAttackAnimationTimeout(0);;
             }
 
         }
-    }
-
-    private boolean isEnemyWithinAttackDistance(LivingEntity pEnemy, double pDistToEnemySqr) {
-        return pDistToEnemySqr <= this.getAttackReachSqr(pEnemy);
     }
 
     protected void resetAttackCooldown() {
@@ -93,9 +93,5 @@ public class AnimatedAttackGoal extends CCMeleeAttackGoal {
         if (entity instanceof IAnimatedAttacker attacker)
             attacker.setAttacking(false);
         super.stop();
-    }
-
-    protected double getAttackReachSqr(LivingEntity pAttackTarget) {
-        return (double)(this.mob.getBbWidth() * 1.25F * this.mob.getBbWidth() * 1.25F + pAttackTarget.getBbWidth());
     }
 }
