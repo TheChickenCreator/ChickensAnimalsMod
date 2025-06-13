@@ -72,6 +72,7 @@ public class GallianChickModel<T extends GallianEntity> extends HierarchicalMode
 		this.head.yRot = netHeadYaw * ((float)Math.PI / 180F);
 
 		this.animate(entity.idleAnimationState, GallianChickAnims.IDLE, ageInTicks, 1);
+
 		this.animate(entity.peckAnimationState, GallianChickAnims.PECK, ageInTicks, 1);
 		this.animate(entity.idleBlinkAnimationState, GallianChickAnims.TAIL_SHAKE, ageInTicks, 1);
 

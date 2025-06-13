@@ -3,6 +3,7 @@ package chicken.creaturecorner.server.entity.obj;
 import chicken.creaturecorner.server.entity.CCEntities;
 import chicken.creaturecorner.server.entity.obj.base.GeoTamableEntity;
 import chicken.creaturecorner.server.entity.obj.base.IAnimatedAttacker;
+import chicken.creaturecorner.server.entity.obj.base.IAnimatedEater;
 import chicken.creaturecorner.server.entity.obj.goal.AnimatedAttackGoal;
 import chicken.creaturecorner.server.entity.obj.goal.EatGrassGoal;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +21,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +32,7 @@ import software.bernie.geckolib.animation.AnimatableManager;
 
 import java.util.UUID;
 
-public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnimatedAttacker {
+public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnimatedAttacker, IAnimatedEater {
 
     public final AnimationState attackAnimationState = new AnimationState();
     public final AnimationState idleAnimationState = new AnimationState();
@@ -56,7 +56,7 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
 
     @Override
     protected void registerGoals() {
-        this.eatBlockGoal = new EatGrassGoal(this, 20);
+        this.eatBlockGoal = new EatGrassGoal(this, 15, 5);
 
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new AnimatedAttackGoal(this, 2.5, true, 8, 7));
@@ -125,6 +125,16 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
     }
 
     @Override
+    public int eatingAnimationTimeout() {
+        return this.peckTimeout;
+    }
+
+    @Override
+    public void setEatingAnimationTimeout(int eatingAnimationTimeout) {
+        this.peckTimeout = eatingAnimationTimeout;
+    }
+
+    @Override
     public int attackAnimationTimeout() {
         return this.attackAnimationTimeout;
     }
@@ -165,8 +175,6 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
     }
 
     public void customServerAiStep() {
-        this.peckTimeout = this.eatBlockGoal.getTickForAnim();
-
         if (this.getMoveControl().hasWanted()) {
             double d0 = this.getMoveControl().getSpeedModifier();
             this.setPose(Pose.STANDING);
@@ -205,10 +213,11 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
             --this.attackAnimationTimeout;
         }
 
-        if(this.peckTimeout>0) {
-            peckAnimationState.startIfStopped(this.tickCount);
-
-            this.peckTimeout = Math.max(0, this.peckTimeout - 1);
+        if(this.isEating() && peckTimeout <= 0) {
+            peckTimeout = 20;
+            peckAnimationState.start(this.tickCount);
+        } else {
+            --this.peckTimeout;
         }
 
     }
@@ -229,6 +238,16 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
         return this.getAttackBoundingBox().intersects(this.getTargetHitbox(entity));
     }
 
+    @Override
+    public int maxFood() {
+        return 2000;
+    }
+
+    @Override
+    public boolean hasHunger() {
+        return true;
+    }
+
     protected AABB getAttackBoundingBox() {
         Entity entity = this.getVehicle();
         AABB aabb;
@@ -240,7 +259,7 @@ public class GallianEntity extends GeoTamableEntity implements NeutralMob, IAnim
             aabb = this.getBoundingBox();
         }
 
-        return aabb.inflate(-0.1, -0.1, -0.1);
+        return aabb.inflate(0.5, 0.5, 0.5);
     }
 
 

@@ -1,8 +1,8 @@
 package chicken.creaturecorner.server.entity.obj.goal;
 
 import chicken.creaturecorner.server.entity.obj.base.GeoEntityBase;
+import chicken.creaturecorner.server.entity.obj.base.IAnimatedEater;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -20,12 +20,14 @@ public class EatGrassGoal extends Goal {
     private final GeoEntityBase mob;
     private final Level level;
     private int eatAnimationTick;
-    private int eatDuration;
+    private int eatDelay;
+    private int ticksUntilStop;
 
-    public EatGrassGoal(GeoEntityBase mob, int duration) {
+    public EatGrassGoal(GeoEntityBase mob, int eatDelay, int ticksUntilStop ) {
         this.mob = mob;
         this.level = mob.level();
-        this.eatDuration = duration;
+        this.eatDelay = eatDelay;
+        this.ticksUntilStop = ticksUntilStop;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
     }
 
@@ -44,30 +46,29 @@ public class EatGrassGoal extends Goal {
     }
 
     public void start() {
-        this.eatAnimationTick = this.adjustedTickDelay(eatDuration);
+        this.eatAnimationTick = this.adjustedTickDelay(eatDelay + ticksUntilStop);
+        if (this.mob instanceof IAnimatedEater eater){
+            eater.setEatingAnimationTimeout(eatDelay + ticksUntilStop);
+            eater.setEating(true);
+        }
         this.level.broadcastEntityEvent(this.mob, (byte)10);
         this.mob.getNavigation().stop();
     }
 
     public void stop() {
         this.eatAnimationTick = 0;
+        if (this.mob instanceof IAnimatedEater eater){
+            eater.setEatingAnimationTimeout(0);
+            eater.setEating(false);
+        }
     }
 
     public boolean canContinueToUse() {
         return this.eatAnimationTick > 0;
     }
 
-    public int getEatAnimationTick() {
-        return this.eatAnimationTick;
-    }
-
-    public int getTickForAnim(){
-        return this.eatDuration - this.getEatAnimationTick();
-    }
-
     public void tick() {
-        this.eatAnimationTick = Math.max(0, this.eatAnimationTick - 1);
-        if (this.eatAnimationTick == this.adjustedTickDelay(4)) {
+        if (this.eatAnimationTick == ticksUntilStop) {
             BlockPos blockPos = this.mob.blockPosition();
             if (IS_TALL_GRASS.test(this.level.getBlockState(blockPos))) {
                 if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
@@ -89,8 +90,9 @@ public class EatGrassGoal extends Goal {
                     this.mob.setFoodLevel(this.mob.maxFood()/4);
                 }
             }
-
         }
+
+        this.eatAnimationTick--;
     }
 
 }

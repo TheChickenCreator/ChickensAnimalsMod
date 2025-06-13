@@ -6,9 +6,7 @@ public interface IAnimatedAttacker {
 
     void setAttacking(boolean attacking);
 
-
     int attackAnimationTimeout();
 
     void setAttackAnimationTimeout(int attackAnimationTimeout);
-
 }

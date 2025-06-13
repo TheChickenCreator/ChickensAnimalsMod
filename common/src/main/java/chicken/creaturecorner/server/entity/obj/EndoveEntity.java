@@ -158,7 +158,6 @@ public class EndoveEntity extends PigeonEntity{
 
     @Override
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, SpawnGroupData spawnGroupData) {
-        System.out.println("Trying to spawn endove");
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
